@@ -1,0 +1,37 @@
+set daemon 45
+
+set mailserver localhost
+set httpd port 2812 and
+	use address localhost  # only accept connection from localhost
+	allow localhost        # allow localhost to connect to the server and
+set alert root@localhost 
+set mail-format { from: root@localhost }
+
+check process sshd with pidfile /var/run/sshd.pid
+    start program = "/etc/init.d/ssh start"
+    stop program = "/etc/init.d/ssh stop"
+
+check process postfix with pidfile /var/spool/postfix/pid/master.pid
+    start program = "/etc/init.d/postfix start"
+    stop program = "/etc/init.d/postfix stop"
+
+check process nginx with pidfile /opt/nginx/logs/nginx.pid
+    start program = "/etc/init.d/nginx start"
+    stop program = "/etc/init.d/nginx stop"
+	
+check process php5-fpm with pidfile /var/run/php5-fpm.pid
+	start program = "/etc/init.d/php5-fpm start"
+	stop program = "/etc/init.d/php5-fpm stop"
+
+check process mysqld with pidfile /var/run/mysqld/mysqld.pid
+    start program = "/etc/init.d/mysql start"
+    stop program = "/etc/init.d/mysql stop"
+
+check process apache2 with pidfile /var/run/apache2/apache2.pid
+    start program = "/etc/init.d/apache2 start"
+    stop program = "/etc/init.d/apache2 stop"
+
+check process railo_ctl with pidfile /opt/railo/tomcat/work/tomcat.pid
+    start program = "/etc/init.d/railo_ctl start" with timeout 90 seconds 
+    stop program = "/etc/init.d/railo_ctl forcequit"
+	

@@ -1,0 +1,37 @@
+# Last Modified: Sat Jan 18 01:51:12 2014
+#include <tunables/global>
+
+/opt/nginx/sbin/nginx {
+  #include <abstractions/base>
+  #include <abstractions/libvirt-qemu>
+  #include <abstractions/nameservice>
+  #include <abstractions/nis>
+
+  capability dac_override,
+  capability net_bind_service,
+  capability sys_resource,
+
+
+
+  /etc/ssl/openssl.cnf r,
+  /opt/jetendo/public/** r,
+  /opt/jetendo/share/** r,
+  /opt/jetendo/share/mls-images-temp/** r,
+  /opt/jetendo/sites/** r,
+  /opt/jetendo/sites-writable/** r,
+  /opt/jetendo/themes/** r,
+  /opt/nginx/client_body_temp/** rw,
+  /opt/nginx/conf/** r,
+  /opt/nginx/fastcgi_temp/** rw,
+  /opt/nginx/logs/** rw,
+  /opt/nginx/off w,
+  /opt/nginx/on w,
+  /opt/nginx/pagespeed_cache/** rw,
+  /opt/nginx/proxy_temp/** rw,
+  /opt/nginx/sbin/nginx mr,
+  /opt/nginx/scgi_temp/** rw,
+  /opt/nginx/ssl/** r,
+  /opt/nginx/uwscgi_temp/** rw,
+  /zbackup/jetendo/share/mls-images/** r,
+
+}

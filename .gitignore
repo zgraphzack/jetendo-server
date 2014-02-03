@@ -1,3 +1,22 @@
+*.sublime-*
+jetendo
+railo/vhosts/*
+mysql/data/*
+mysql/logs/*
+mysql/tmp/*
+system/apr-build/*
+system/nginx-build/*
+system/railo/*
+apache/sites/*
+nginx/sites/*
+system/nginx-conf/sites/*
+php/sites/*
+php/fpm-pool-conf/*
+php/run/*
+php/temp/*
+php/session/*
+system/coldfusion/install/*
+
 #################
 ## Eclipse
 #################

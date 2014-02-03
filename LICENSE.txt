@@ -1,0 +1,45 @@
+Jetendo CMS License
+
+Copyright 2014 Far Beyond Code LLC
+
+Jetendo CMS is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
+Jetendo CMS is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with Jetendo CMS. If not, see http://gnu.org/licenses/gpl.html
+
+For more information about the license, included third party software, special exceptions and/or commercial licensing inquiries, visit: 
+https://www.jetendo.com/license/index
+
+Jetendo CMS should contain the license files for all included software when being redistributed.
+
+This project includes a copy of the following third party open source software.  Their respective licenses are listed below and the licenses must be obeyed.
+
+PHP scripts:
+TTLoanCalc - GPL - loan.php - and the hyperlinks must be intact or license is invalid.
+
+Javascript Libraries:
+Jquery and Jquery UI - MIT - http://jquery.org/license/
+Tinymce - LGPL - http://www.tinymce.com/wiki.php/License
+jscolor - LGPL - http://jscolor.com/
+YUI Compressor - BSD and MPL - http://developer.yahoo.com/yui/compressor/
+iscroll - MIT - http://cubiq.org/license
+closure compiler - Apache License, Version 2.0 - http://code.google.com/p/closure-compiler/
+BigInt.js - public domain - http://leemon.com/
+swfobject - MIT - http://code.google.com/p/swfobject/
+ContentFlow - MIT - http://jacksasylum.eu/ContentFlow/
+VideoJs - LGPL - http://videojs.com/
+SWFUpload - MIT - http://www.swfupload.org/
+Nivo Slider - MIT - http://nivo.dev7studios.com/
+Colorbox - MIT - http://www.jacklmoore.com/colorbox
+jquery-timers - WTFPL - http://sam.zoy.org/wtfpl/
+SlideJS - Apache license 2.0 - http://slidesjs.com/
+jquery-lightbox - CC (creative commons) - http://leandrovieira.com/projects/jquery/lightbox/
+Balupton History - MIT - https://github.com/balupton/jquery-history
+simplehtmlparser.js MPL (GPL + MIT type license) - http://erik.eae.net/simplehtmlparser/simplehtmlparser.js
+Flowplayer - GPL - http://flowplayer.org/
+Jquery-SelectBox - MIT & GNUv2 - http://labs.abeautifulsite.net/jquery-selectBox/
+jquery-dcverticalmegamenu - MIT & GPL - http://www.designchemical.com/lab/jquery-vertical-mega-menu-plugin/getting-started/
+jquery.hoverIntent MIT & GPL - http://cherne.net/brian/resources/jquery.hoverIntent.html
+jquery-mega-drop-down-menu - MIT & GPL - http://www.designchemical.com/lab/jquery-mega-drop-down-menu-plugin/getting-started/
+JPlayer - MIT & GPL - https://github.com/happyworm/jPlayer/blob/master/README
+PWDMeter - GPLv3 - http://www.passwordmeter.com/
+Other projects may be included, and this list may be incomplete.  All included projects are compatible with Jetendo's license.
