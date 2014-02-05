@@ -79,6 +79,8 @@ Configure MySQL (MariaDB):
 		password: YOUR_PASSWORD
 	
 Configure Postfix
+	Edit /etc/aliases,  Find the line for "root" and make it "root: EMAIL_ADDRESS" where EMAIL_ADDRESS is the email address that system & security related emails should be forwarded to.
+
 	vi /etc/postfix/main.cf
 	
 	Relay mail with Sendgrid.net (Optional, but recommended for production servers)

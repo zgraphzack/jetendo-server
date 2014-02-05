@@ -363,6 +363,8 @@ Configure fail2ban:
 	If you are ever blocked from ssh login, restarting the server or waiting 10 minutes will allow you back in.
 
 Configure Postfix to use Sendgrid.net for relying mail.
+	Edit /etc/aliases,  Find the line for "root" and make it "root: EMAIL_ADDRESS" where EMAIL_ADDRESS is the email address that system & security related emails should be forwarded to.
+	
 	Relay mail with Sendgrid.net (Optional, but recommended for production servers)
 		Add this to the end /etc/postfix/main.cf where your_username and your_password are replaced with the sendgrid.net login information.
 			# jetendo-custom-smtp-begin
