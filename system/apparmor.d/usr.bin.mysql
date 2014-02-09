@@ -3,8 +3,10 @@
 
 /usr/bin/mysql {
   #include <abstractions/base>
+  #include <abstractions/libvirt-qemu>
+  #include <abstractions/nameservice>
 
-
+  capability dac_override,
 
   /etc/mysql/conf.d/ r,
   /etc/mysql/conf.d/* r,
@@ -12,8 +14,6 @@
   /etc/mysql/debian.cnf r,
   /sys/devices/system/cpu/ r,
   /usr/bin/mysql mr,
-  /etc/nsswitch.conf r,
-  /etc/services r,
   /opt/jetendo/share/mls-data/** r,
   /opt/jetendo/share/database/** rw,
   /opt/mysql/data/** rw,
