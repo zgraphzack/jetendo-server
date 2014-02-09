@@ -11,6 +11,8 @@
   /anon_hugepage//deleted mr,
   /bin/ls rix,
   /etc/lsb-release r,
+  /etc/debian_version r,
+  /proc/loadavg r,
   /etc/timezone r,
   /opt/jetendo/core/ r,
   /opt/jetendo/core/** r,
