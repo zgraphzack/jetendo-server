@@ -16,6 +16,8 @@
   /etc/timezone r,
   /opt/jetendo/core/ r,
   /opt/jetendo/core/** r,
+  /opt/jetendo/database-upgrade/ r,
+  /opt/jetendo/database-upgrade/** r,
   /opt/jetendo/sites/WEB-INF/ rw,
   /opt/jetendo/sites/WEB-INF/** rw,
   /opt/railo/tomcat/webapps/*/WEB-INF/ rw,
