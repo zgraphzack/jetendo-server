@@ -68,6 +68,8 @@
   /usr/share/poppler/cMap/Adobe-Japan2/ r,
   /usr/share/poppler/cMap/Adobe-Korea1/ r,
   /zbackup/jetendo/share/ rw,
-  /zbackup/jetendo/share/* rw,
+  /zbackup/jetendo/share/** rw,
+  /zbackup/backup/ rw,
+  /zbackup/backup/** rw,
 
 }
