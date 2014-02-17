@@ -27,12 +27,18 @@ if ($handle = opendir('/home/')) {
 				fclose($f);
 			}
 		}
+		// remove mailboxes
 		if(file_exists("/home/".$entry."/mbox")){
 			unlink("/home/".$entry."/mbox");
 		}
     }
     closedir($handle);
 }
+
+// remove all mail
+$cmd="/bin/rm -rf /var/mail/*";
+`$cmd`;
+
 
 // remove the railo server admin password
 $contents=file_get_contents("/opt/railo/lib/railo-server/context/railo-server.xml");
