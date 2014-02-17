@@ -17,7 +17,6 @@ set_time_limit(300);
 `/usr/sbin/service rsyslog stop`;
 `/usr/sbin/service junglediskserver stop`;
 
-// TODO: remove the railo admin passwords
 
 if ($handle = opendir('/home/')) {
     while (false !== ($entry = readdir($handle))) {
@@ -34,6 +33,13 @@ if ($handle = opendir('/home/')) {
     }
     closedir($handle);
 }
+
+// remove the railo server admin password
+$contents=file_get_contents("/opt/railo/lib/railo-server/context/railo-server.xml");
+$pattern = '/railo-configuration pw="([^"]*)"/i';
+$replace='railo-configuration pw=""';
+$contents=preg_replace ($pattern , $replace , $contents, 1);
+file_put_contents("/opt/railo/lib/railo-server/context/railo-server.xml", $contents);
 
 # Removing smtp login between # jetendo-custom-smtp-begin and # jetendo-custom-smtp-end
 if(file_exists("/etc/postfix/main.cf")){
