@@ -313,11 +313,19 @@ Install Optional Packages If You Want Them:
 	ln -sfn /opt/jetendo-server/system/php/pool.d /etc/php5/fpm/pool.d
 	
 # enable apparmor profiles:
-	cp -f /opt/jetendo-server/system/apparmor.d/opt.nginx.sbin.nginx /etc/apparmor.d/opt.nginx.sbin.nginx
-	cp -f /opt/jetendo-server/system/apparmor.d/opt.railo.jdk.jre.bin.java /etc/apparmor.d/opt.railo.jdk.jre.bin.java
-	cp -f /opt/jetendo-server/system/apparmor.d/usr.bin.mysql /etc/apparmor.d/usr.bin.mysql
-	cp -f /opt/jetendo-server/system/apparmor.d/usr.sbin.php5-fpm /etc/apparmor.d/usr.sbin.php5-fpm
-	apparmor_parser -r /etc/apparmor.d/
+	production server:
+		cp -f /opt/jetendo-server/system/apparmor.d/production/opt.nginx.sbin.nginx /etc/apparmor.d/opt.nginx.sbin.nginx
+		cp -f /opt/jetendo-server/system/apparmor.d/production/opt.railo.jdk.jre.bin.java /etc/apparmor.d/opt.railo.jdk.jre.bin.java
+		cp -f /opt/jetendo-server/system/apparmor.d/production/usr.bin.mysql /etc/apparmor.d/usr.bin.mysql
+		cp -f /opt/jetendo-server/system/apparmor.d/production/usr.sbin.php5-fpm /etc/apparmor.d/usr.sbin.php5-fpm
+		apparmor_parser -r /etc/apparmor.d/
+	development server:
+		cp -f /opt/jetendo-server/system/apparmor.d/development/opt.nginx.sbin.nginx /etc/apparmor.d/opt.nginx.sbin.nginx
+		cp -f /opt/jetendo-server/system/apparmor.d/development/opt.railo.jdk.jre.bin.java /etc/apparmor.d/opt.railo.jdk.jre.bin.java
+		cp -f /opt/jetendo-server/system/apparmor.d/development/usr.bin.mysql /etc/apparmor.d/usr.bin.mysql
+		cp -f /opt/jetendo-server/system/apparmor.d/development/usr.sbin.php5-fpm /etc/apparmor.d/usr.sbin.php5-fpm
+		apparmor_parser -r /etc/apparmor.d/
+	
 	configure the profiles to be specific to your application by editing them in /etc/apparmor.d/ directly.
 	
 # generate self-signed ssl certs for development

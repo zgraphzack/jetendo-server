@@ -1,0 +1,50 @@
+# Last Modified: Sun Jan 26 01:30:15 2014
+#include <tunables/global>
+
+/usr/sbin/php5-fpm {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+
+  capability kill,
+  capability setgid,
+
+  /etc/mailname r,
+  /etc/postfix/dynamicmaps.cf r,
+  /usr/sbin/postdrop rix,
+  /var/spool/postfix/maildrop/* rw,
+  /etc/postfix/main.cf r,
+  /opt/jetendo/phptemp/  rw,
+  /opt/jetendo/phptemp/** rw,
+  /etc/php5/fpm/conf.d/ r,
+  /etc/php5/fpm/php-fpm.conf r,
+  /etc/php5/fpm/php.ini r,
+  /etc/php5/fpm/pool.d/ r,
+  /etc/php5/fpm/pool.d/www.conf r,
+  /etc/php5/mods-available/* r,
+  /opt/jetendo/phptemp/* w,
+  /opt/jetendo/public/a/content/oauth.php r,
+  /opt/jetendo/public/a/content/yelp.php r,
+  /opt/jetendo/public/a/host-time.php r,
+  /opt/jetendo/public/a/listing/size.php r,
+  /opt/jetendo/public/a/secure-message.php r,
+  /opt/jetendo/public/index.php r,
+  /opt/jetendo/public/mls-images-temp/ w,
+  /opt/jetendo/scripts/jetendo.ini r,
+  /opt/jetendo/share/mls-images-temp/ rw,
+  /opt/jetendo/share/mls-images-temp/** rw,
+  /opt/jetendo/share/mls-images/ rw,
+  /opt/jetendo/share/mls-images/** rw,
+  /proc/*/loginuid r,
+  /run/php5-fpm.pid w,
+  /run/php5-fpm.sock w,
+  /sys/devices/system/cpu/ r,
+  /tmp/* rwk,
+  /usr/lib{,32,64}/** mr,
+  /usr/sbin/php5-fpm mr,
+  /usr/sbin/sendmail rix,
+  /usr/share/mysql/charsets/Index.xml r,
+  /var/log/php5-fpm.log w,
+  /zbackup/jetendo/share/mls-images/ rw,
+  /zbackup/jetendo/share/mls-images/** rw,
+
+}
