@@ -126,7 +126,7 @@ Log out and login as root using ssh for the rest of the instructions.
 		/media/cdrom/VBoxLinuxGuestAdditions.run
 		reboot
 
-# Add the contents of /jetendo/system/jetendo-fstab.conf to /etc/fstab and run
+# Add the contents of /jetendo/system/jetendo-fstab.conf and copy the file to /etc/fstab, then run
 	mount -a
 	
 Add Prerequisite Repositories
@@ -162,11 +162,17 @@ Configure MariaDB
 	disable the /root/.mysql_history file
 	export MYSQL_HISTFILE=/dev/null
 
+# add hosts to system to force dns resolution to work for more loopback ips:
+	vi /etc/hosts
+		127.0.0.2 nginx
+		127.0.0.3 apache
+
 Configure Apache2 (Note: Jetendo CMS uses Nginx exclusive, Apache configuration is optional)
 	# enable modules
-		a2enmod ssl rewrite proxy proxy_html
+		a2enmod ssl rewrite proxy proxy_html xml2enc
 	Change apache2 ip binding
 		vi /etc/apache2/ports.conf
+			ServerName dev
 			Listen 127.0.0.3:80
 			Listen 127.0.0.3:443
 	
@@ -296,6 +302,7 @@ Install Optional Packages If You Want Them:
 # dev server manually modified files
 	
 # development server symbolic link configuration
+	ln -sfn /opt/jetendo-server/system/jetendo-mysql-development.cnf /etc/mysql/conf.d/jetendo-mysql-development.cnf
 	ln -sfn /opt/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx
 	ln -sfn /opt/jetendo-server/system/nginx-conf/nginx-development.conf /opt/nginx/conf/nginx.conf
 	ln -sfn /opt/jetendo-server/system/jetendo-sysctl-development.conf /etc/sysctl.d/jetendo-sysctl-development.conf
@@ -313,17 +320,17 @@ Install Optional Packages If You Want Them:
 	ln -sfn /opt/jetendo-server/system/php/pool.d /etc/php5/fpm/pool.d
 	
 # enable apparmor profiles:
-	production server:
-		cp -f /opt/jetendo-server/system/apparmor.d/production/opt.nginx.sbin.nginx /etc/apparmor.d/opt.nginx.sbin.nginx
-		cp -f /opt/jetendo-server/system/apparmor.d/production/opt.railo.jdk.jre.bin.java /etc/apparmor.d/opt.railo.jdk.jre.bin.java
-		cp -f /opt/jetendo-server/system/apparmor.d/production/usr.bin.mysql /etc/apparmor.d/usr.bin.mysql
-		cp -f /opt/jetendo-server/system/apparmor.d/production/usr.sbin.php5-fpm /etc/apparmor.d/usr.sbin.php5-fpm
-		apparmor_parser -r /etc/apparmor.d/
 	development server:
 		cp -f /opt/jetendo-server/system/apparmor.d/development/opt.nginx.sbin.nginx /etc/apparmor.d/opt.nginx.sbin.nginx
 		cp -f /opt/jetendo-server/system/apparmor.d/development/opt.railo.jdk.jre.bin.java /etc/apparmor.d/opt.railo.jdk.jre.bin.java
 		cp -f /opt/jetendo-server/system/apparmor.d/development/usr.bin.mysql /etc/apparmor.d/usr.bin.mysql
 		cp -f /opt/jetendo-server/system/apparmor.d/development/usr.sbin.php5-fpm /etc/apparmor.d/usr.sbin.php5-fpm
+		apparmor_parser -r /etc/apparmor.d/
+	production server:
+		cp -f /opt/jetendo-server/system/apparmor.d/production/opt.nginx.sbin.nginx /etc/apparmor.d/opt.nginx.sbin.nginx
+		cp -f /opt/jetendo-server/system/apparmor.d/production/opt.railo.jdk.jre.bin.java /etc/apparmor.d/opt.railo.jdk.jre.bin.java
+		cp -f /opt/jetendo-server/system/apparmor.d/production/usr.bin.mysql /etc/apparmor.d/usr.bin.mysql
+		cp -f /opt/jetendo-server/system/apparmor.d/production/usr.sbin.php5-fpm /etc/apparmor.d/usr.sbin.php5-fpm
 		apparmor_parser -r /etc/apparmor.d/
 	
 	configure the profiles to be specific to your application by editing them in /etc/apparmor.d/ directly.
@@ -530,10 +537,13 @@ Configure Jetendo CMS
 		
 		Virtual: /jetendo-sites-writable
 		Resource Path: /opt/jetendo/sites-writable
+		
+		Virtual: /jetendo-database-upgrade
+		Resource Path: /opt/jetendo/database-upgrade
 	
 	Setup the Jetendo datasource - the database, datasource, jetendo_datasource, and request.zos.zcoreDatasource must all be the same name.
 		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/web.cfm?action=services.datasource
-		Add mysql datasource
+		Add mysql datasource named "jetendo" or whatever you've configured it to be in the jetendo config files.
 			host: 127.0.0.1
 			Required options: 
 				Blog: Check
@@ -549,6 +559,31 @@ Configure Jetendo CMS
 	
 	Enable complete null support:
 		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/server.cfm?action=server.compiler
+		
+	Enable mail server:
+		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/server.cfm?action=services.mail
+		
+		Under Mail Servers -> Server (SMTP), type "localhost" and click update"
+		
+	Configure Railo security sandbox
+		http://jetendo.your-company.com.127.0.0.2.xip.io:8888/railo-context/admin/server.cfm?action=security.access&sec_tab=SPECIAL
+		Under Create new context, select "b180779e6dc8f3bb6a8ea14a604d83d4 (/opt/jetendo/sites)" and click Create
+		Then click edit next to the specific web context
+		On a production server, set General Access for read and write to "closed" when you don't need to access the Railo admin.   You can re-enable it only when you need to make changes.
+		Under File Access, select "Local" and enter the following directories. 
+			Note: In Railo 4.2, you have to enter one directory at a time by submitting the form with one entered, and then click edit again to enter the next one.
+			/opt/jetendo/core
+			/opt/jetendo/sites
+			/opt/jetendo/share
+			/opt/jetendo/execute
+			/opt/jetendo/public
+			/opt/jetendo-server/railo/vhosts/b180779e6dc8f3bb6a8ea14a604d83d4/temp
+			/opt/jetendo/sites-writable
+			/opt/jetendo/themes
+			/opt/jetendo/database-upgrade
+			/zbackup/backup
+		Uncheck "Direct Java Access"
+		Uncheck all the boxes under "Tags & Functions" - Jetendo CMS intentionally allows not using these features to be more secure.
 		
 	Edit the values in the following files to match the configuration of your system.
 		/opt/jetendo/core/config.cfc
@@ -566,9 +601,13 @@ Configure Jetendo CMS
 	
 	After it finishes loading, a page should appear saying "You're Almost Ready".
 	
-	You will be prompted to create a server administrator user and set some other information.  Make sure to remember the email and password you use for the server administrator account.  If you do lose your login, you can reset the password via email.
+	You will be prompted to create a server administrator user and set some other information.
 	
-	Once that is done, you will be prompted to login and begin using Jetendo CMS.
+	Make sure you select the 127.0.0.1 as the ip on a development machine unless you know what you're doing.
+	
+	Make sure to remember the email and password you use for the server administrator account.  If you do lose your login, you can reset the password via email.
+	
+	Once that is done, you will be prompted to login to the server manager and begin using Jetendo CMS.
 	
 Preparing the virtual machine for distribution:
 	Run these commands inside the virtual machine - it will automatically poweroff when complete.

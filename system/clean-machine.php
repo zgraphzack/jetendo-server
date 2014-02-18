@@ -17,6 +17,8 @@ set_time_limit(300);
 `/usr/sbin/service rsyslog stop`;
 `/usr/sbin/service junglediskserver stop`;
 
+// TODO: remove /etc/mysql/debian.cnf passwords
+
 
 if ($handle = opendir('/home/')) {
     while (false !== ($entry = readdir($handle))) {
@@ -39,6 +41,13 @@ if ($handle = opendir('/home/')) {
 $cmd="/bin/rm -rf /var/mail/*";
 `$cmd`;
 
+// remove mysql database if it exists inside virtual machine
+$cmd="/bin/rm -rf /var/lib/mysql";
+`$cmd`;
+
+// remove temp files
+$cmd="/bin/rm -rf /tmp/*";
+`$cmd`;
 
 // remove the railo server admin password
 $contents=file_get_contents("/opt/railo/lib/railo-server/context/railo-server.xml");
@@ -64,6 +73,11 @@ if(file_exists("/etc/postfix/sasl_passwd")){
 
 echo `/usr/bin/apt-get clean all`;
 echo `/usr/bin/apt-get autoremove`;
+
+@unlink("/root/.gitconfig");
+$cmd="/bin/rm -rf /home/*/.gitconfig";
+`$cmd`;
+
 `/usr/bin/git config --global user.name "Your Name Here"`;
 `/usr/bin/git config --global user.email "your_email@example.com"`;
 
@@ -82,6 +96,7 @@ echo `$cmd`;
 `/bin/rm -rf /opt/railo/lib/railo-server/context/temp/*`;
 `/bin/rm -rf /opt/railo/tomcat/conf/Catalina/*`;
 `/bin/rm -rf /opt/railo/tomcat/webapps/ROOT/WEB-INF/*`;
+`/bin/rm -rf /opt/jetendo/sites/WEB-INF/*`;
 `/bin/rm -rf /opt/railo/tomcat/work/Catalina/*`;
 `/bin/rm -rf /tmp/*`;
 `/bin/rm -rf /var/log/*.log`;
@@ -107,6 +122,7 @@ echo `/bin/umount -f /opt/jetendo-server/mysql`;
 // compact filesystem to minimize size of VDI.
 echo `/bin/dd if=/dev/zero of=/bigemptyfile bs=4096k`;
 echo `/bin/rm -rf /bigemptyfile`;
+
 `/sbin/poweroff`;
 echo "done";
 ?>

@@ -8,7 +8,8 @@
 
   capability kill,
   capability setgid,
-
+  capability setuid,
+ 
   /etc/mailname r,
   /etc/postfix/dynamicmaps.cf r,
   /usr/sbin/postdrop rix,
@@ -35,6 +36,11 @@
   /opt/jetendo/share/mls-images-temp/** rw,
   /opt/jetendo/share/mls-images/ rw,
   /opt/jetendo/share/mls-images/** rw,
+  /opt/jetendo-server/nginx/sites/ r,
+  /opt/jetendo-server/nginx/sites/** r,
+  /opt/jetendo-server/system/php/pool.d/ r,
+  /opt/jetendo-server/system/php/pool.d/* r,
+  /proc/*/auxv r,
   /proc/*/loginuid r,
   /run/php5-fpm.pid w,
   /run/php5-fpm.sock w,

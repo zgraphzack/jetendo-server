@@ -18,12 +18,7 @@ Virtualbox initial setup
 		Ubuntu Linux x64
 		Minimum requirements: 2048mb ram, 5gb hard drive, 1gb 2nd hard drive for swap, 1 NAT network adapter
 		NAT Advanced Settings -> Port forwarding
-			Name: SSH, Host Ip: 127.0.0.2: Host Port: 3222, Guest Ip: 10.0.2.15, Guest Port: 22
-			Name: Nginx, Host Ip: 127.0.0.2: Host Port: 80, Guest Ip: 10.0.2.15, Guest Port: 80
-			Name: Nginx SSL, Host Ip: 127.0.0.2: Host Port: 443, Guest Ip: 10.0.2.15, Guest Port: 443
-			Name: Apache, Host Ip: 127.0.0.3: Host Port: 80, Guest Ip: 10.0.2.16, Guest Port: 80
-			Name: Apache SSL, Host Ip: 127.0.0.3: Host Port: 443, Guest Ip: 10.0.2.16, Guest Port: 443
-			Name: Railo, Host Ip: 127.0.0.2: Host Port: 8888, Guest Ip: 10.0.2.15, Guest Port: 8888
+			Name: SSH, Host Ip: 127.0.0.2: Host Port: 22, Guest Ip: 10.0.2.15, Guest Port: 22
 		Setup Shared Folders - The following names must point to the directory with the same name on your host system.  By default, they are a subdirectory of this project, however, you may relocate the paths if you wish for more space or performance.
 			nginx
 			mysql
@@ -45,6 +40,19 @@ Verify the VirtualBox shared folders are working:
 			Port: 22
 			Username: root
 		Note: No password is required to login.
+		
+		Note: if SSH login fails, you may have a different NAT ip for your guest virtual machine.  In the VirtualBox guest console window, login as root, and then type "ipconfig" to find the ip address for the eth0 interface.   Then update your virtualbox port forwarding to use that ip instead of 10.0.2.15 and try to login to SSH again.
+			
+	Configure SSH Tunneling on your SSH client for the services you want to use:
+		Nginx, Host Ip: 127.0.0.2: Host Port: 80, Guest Ip: 127.0.0.2, Guest Port: 80
+		Nginx SSL, Host Ip: 127.0.0.2: Host Port: 443, Guest Ip: 127.0.0.2, Guest Port: 443
+		Apache, Host Ip: 127.0.0.3: Host Port: 80, Guest Ip: 127.0.0.3, Guest Port: 80
+		Apache SSL, Host Ip: 127.0.0.3: Host Port: 443, Guest Ip: 127.0.0.3, Guest Port: 443
+		Railo, Host Ip: 127.0.0.2: Host Port: 8888, Guest Ip: 127.0.0.1, Guest Port: 8888
+		Monit, Host Ip: 127.0.0.2: Host Port: 2812, Guest Ip: 127.0.0.1, Guest Port: 2812
+		Coldfusion, Host Ip: 127.0.0.2: Host Port: 8500, Guest Ip: 127.0.0.1, Guest Port: 8500
+		MySQL/MariaDB, Host Ip: 127.0.0.2: Host Port: 3306, Guest Ip: 127.0.0.1, Guest Port: 3306
+		
 	Run this command and verify that the directory isn't empty.
 		ls -al /opt/jetendo-server/system
 	
@@ -64,13 +72,22 @@ Configure MySQL (MariaDB):
 	If you already have database data files installed at /opt/mysql/data through the virtualbox shared folders, skip this step.
 	
 	To reinstall the initial mysql tables, run this command:
-		/usr/bin/mysql_install_db --user=mysql --basedir=/usr --datadir=/opt/mysql/data
+		/usr/bin/mysql_install_db --user=mysql --basedir=/usr --datadir=/opt/jetendo-server/mysql/data
 	
-	Then run:
-		/usr/bin/mysql_secure_installation
-		
 	Restart mysql service:
 		/usr/sbin/service mysql restart
+		
+	Then run:
+		cd /opt/jetendo-server/mysql/logs/
+		/usr/bin/mysql_secure_installation --defaults-file=/etc/mysql/my.cnf
+		
+		If you get a permission error, you can temporary set apparmor profile to complain mode with this command:  aa-complain mysql    and then set it back to enforce after completing the install with this command:  aa-enforce mysql
+		
+		Setup a user for mysql system maintenance that has all global privileges to all tables
+			debian-sys-maint@localhost
+		
+		Update password (in plain text) in this file:
+			/etc/mysql/debian.cnf
 	
 	Verify you can connect to the mysql server using sqlyog or another GUI in your host system where YOUR_PASSWORD is the password you provided during the execution of "mysql_secure_installation":
 		host: 127.0.0.2
@@ -144,12 +161,51 @@ Setup Git options
 	git config --global user.email "your_email@example.com"
 	git config --global core.filemode false
 	
-	
 Configure Jetendo CMS
 
 	Install the jetendo source code from git by running the php script below from the command line.
 	You can edit this file to change the git repo or branch if you want to work on a fork or different branch of the project.  If you intend to contribute to the project, it would be wise to create a fork first.  You can always change your git remote origin later.
 		php /opt/jetendo/system/install-jetendo.php
+		
+	Add the following mappings to the Railo web admin for the /opt/jetendo/ context:
+		Railo web admin URL for VirtualBox (create a new password if it asks.)
+		
+		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/web.cfm?action=resources.mappings
+	
+		The resource path for "/zcorecachemapping" must be the sites-writable path for the adminDomain.
+		For example, if request.zos.adminDomain = "http://jetendo.your-company.com";
+		Then the correct configuration is:
+			Virtual: /zcorecachemapping
+			Resource Path: /opt/jetendo/sites-writable/jetendo_your-company_com/_cache
+		
+		Virtual: /zcorerootmapping
+		Resource Path: /opt/jetendo/core
+		After creating "/zcorerootmapping", click the edit icon and make sure "Top level accessible" is checked and click save.
+		
+		Virtual: /jetendo-themes
+		Resource Path: /opt/jetendo/themes
+		
+		Virtual: /jetendo-sites-writable
+		Resource Path: /opt/jetendo/sites-writable
+		
+		Virtual: /jetendo-database-upgrade
+		Resource Path: /opt/jetendo/database-upgrade
+	
+	Setup the Jetendo datasource - the database, datasource, jetendo_datasource, and request.zos.zcoreDatasource must all be the same name.
+		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/web.cfm?action=services.datasource
+		Add mysql datasource named "jetendo" or whatever you've configured it to be in the jetendo config files.
+			host: 127.0.0.1
+			Required options: 
+				Blog: Check
+				Clob: Check
+				Use Unicode: true
+				Alias handling: true
+				Allow multiple queries: false
+				Zero DateTime behavior: convertToNull
+				Auto reconnect: false
+				Throw error upon data truncation: false
+				TinyInt(1) is bit: false
+				Legacy Datetime Code: true
 
 	Edit the values in the following files to match the configuration of your system.
 		/opt/jetendo/core/config.cfc

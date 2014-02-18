@@ -10,12 +10,13 @@
   capability dac_override,
   capability net_bind_service,
   capability sys_resource,
-
-
+  capability setgid,
+  capability setuid,
 
   /etc/ssl/openssl.cnf r,
   /opt/jetendo/public/** r,
   /opt/jetendo/share/** r,
+  /opt/jetendo-server/system/ssl/* r,
   /opt/jetendo/share/mls-images-temp/** r,
   /opt/jetendo/sites/** r,
   /opt/jetendo/sites-writable/** r,
@@ -33,5 +34,8 @@
   /opt/nginx/ssl/** r,
   /opt/nginx/uwscgi_temp/** rw,
   /zbackup/jetendo/share/mls-images/** r,
+  /opt/jetendo-server/system/nginx-conf/** r,
+  /opt/jetendo-server/nginx/sites/ r,
+  /opt/jetendo-server/nginx/sites/** r,
 
 }
