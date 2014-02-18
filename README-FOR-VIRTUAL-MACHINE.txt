@@ -213,10 +213,12 @@ Configure Jetendo CMS
 		/opt/jetendo/scripts/jetendo.ini
 	
 	If you want to run a RELEASE version of Jetendo CMS, follow these steps:
-		Download the release files, and unzip its contents to /opt/jetendo in the virtual machine or server.  Make sure that there is no an extra /opt/jetendo/jetendo directory.  The files should be in /opt/jetendo/
-		Run this command to install it the release without forcing it to match the git repository:
+		Download the release file for the "jetendo" project, and unzip its contents to /opt/jetendo in the virtual machine or server.  Make sure that there is no an extra /opt/jetendo/jetendo directory.  The files should be in /opt/jetendo/
+		Download the release file for the "jetendo-default-theme" project and unzip its contents to /opt/jetendo/themes/jetendo-default-theme in the virtual machine or server. Make sure that there is no an extra /opt/jetendo/themes/jetendo-default-theme/jetendo-default-theme directory.  The files should be in /opt/jetendo/themes/jetendo-default-theme
+		
+		Run this command to install it the release without forcing it to use the git repository:
 			php /opt/jetendo/scripts/install.php disableGitIntegration
-		Note: the project will not be installed as a git repository.
+		Note: the project will not be installed as a git repository, so you will have to manually perform upgrades in the future.
 		
 	If you want to run the DEVELOPMENT version of Jetendo CMS, follow these steps:
 		Run this command to install the Jetendo CMS cron jobs and verify the integrity of the source code.
