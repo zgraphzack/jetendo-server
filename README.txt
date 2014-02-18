@@ -515,6 +515,7 @@ Configure Jetendo CMS
 
 	Install the Jetendo source code from git by running the php script below from the command line.
 	You can edit this file to change the git repo or branch if you want to work on a fork or different branch of the project.  If you intend to contribute to the project, it would be wise to create a fork first.  You can always change your git remote origin later.
+	Note: If you want to run a RELEASE version of Jetendo CMS, skip running this file.
 		php /opt/jetendo-server/system/install-jetendo.php
 		
 	Add the following mappings to the Railo web admin for the /opt/jetendo/ context:
@@ -594,12 +595,21 @@ Configure Jetendo CMS
 	Enable the php configuration module:
 		php5enmod jetendo
 	
-	Run this command to install the Jetendo CMS cron jobs and verify the integrity of the source code.
-		php /opt/jetendo/scripts/install.php
-
+	If you want to run a RELEASE version of Jetendo CMS, follow these steps:
+		Download the release files, and unzip its contents to /opt/jetendo in the virtual machine or server.  Make sure that there is no an extra /opt/jetendo/jetendo directory.  The files should be in /opt/jetendo/
+		Run this command to install it the release without forcing it to match the git repository:
+			php /opt/jetendo/scripts/install.php ignoreIntegrityCheck
+		Note: the project will not be installed as a git repository.
+		
+	If you want to run the DEVELOPMENT version of Jetendo CMS, follow these steps:
+		Run this command to install the Jetendo CMS cron jobs and verify the integrity of the source code.
+			php /opt/jetendo/scripts/install.php
+		Any updates since the last time you ran this installation file, will be pulled from github.com.
+		Note: The project will be installed as a git respository.
+		
 	At the end of a successful run of install.php, you'll be told to visit a URL in the browser to complete installation.  The first time you run that URL, it will restore the database tables, and verify the integrity of the installation.  Please be patient as this process can take anywhere from 10 seconds to a couple minutes the first time depending on your environment.
 	
-	If you have a problem during this step, you may need to drop the entire database, and restart the Railo Server after correcting the configuration.   This is because the first time database installation may fail if you make a mistake in your configuration or if there is a bug in the install script.  Please make us aware of any problems you encountered during installation so we can improve the software.
+	Troubleshooting Tip: If you have a problem during this step, you may need to drop the entire database, and restart the Railo Server after correcting the configuration.   This is because the first time database installation may fail if you make a mistake in your configuration or if there is a bug in the install script.  Please make us aware of any problems you encountered during installation so we can improve the software.
 	
 	After it finishes loading, a page should appear saying "You're Almost Ready".
 	
