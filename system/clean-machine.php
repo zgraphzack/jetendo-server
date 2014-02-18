@@ -5,6 +5,7 @@
 // run this before running this php /opt/jetendo-server/system/clean-machine.php
 // killall -9 php
 
+
 set_time_limit(300);
 
 `/usr/sbin/service monit stop`;
@@ -17,8 +18,13 @@ set_time_limit(300);
 `/usr/sbin/service rsyslog stop`;
 `/usr/sbin/service junglediskserver stop`;
 
-// TODO: remove /etc/mysql/debian.cnf passwords
 
+// remove mysql passwords
+$contents=file_get_contents("/etc/mysql/debian.cnf");
+$pattern = '/password =(.*)/i';
+$replace='password =';
+$contents=preg_replace ($pattern , $replace , $contents);
+file_put_contents("/etc/mysql/debian.cnf", $contents);
 
 if ($handle = opendir('/home/')) {
     while (false !== ($entry = readdir($handle))) {
