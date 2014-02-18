@@ -599,6 +599,8 @@ Configure Jetendo CMS
 
 	At the end of a successful run of install.php, you'll be told to visit a URL in the browser to complete installation.  The first time you run that URL, it will restore the database tables, and verify the integrity of the installation.  Please be patient as this process can take anywhere from 10 seconds to a couple minutes the first time depending on your environment.
 	
+	If you have a problem during this step, you may need to drop the entire database, and restart the Railo Server after correcting the configuration.   This is because the first time database installation may fail if you make a mistake in your configuration or if there is a bug in the install script.  Please make us aware of any problems you encountered during installation so we can improve the software.
+	
 	After it finishes loading, a page should appear saying "You're Almost Ready".
 	
 	You will be prompted to create a server administrator user and set some other information.
