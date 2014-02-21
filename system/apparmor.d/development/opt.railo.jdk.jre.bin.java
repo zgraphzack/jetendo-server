@@ -10,6 +10,7 @@
 
   /anon_hugepage//deleted mr,
   /bin/ls rix,
+  /bin/chmod rix,
   /etc/lsb-release r,
   /etc/debian_version r,
   /proc/loadavg r,
