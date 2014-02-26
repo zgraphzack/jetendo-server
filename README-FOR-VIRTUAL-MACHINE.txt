@@ -7,6 +7,13 @@ If you'd like to install the OS yourself from scratch, please use README.txt tha
 
 To use this image with virtualbox, there are a few steps to customize it so that you receive the email alerts and that it works with your projects.
 
+Download Jetendo Server 
+	If you're reading this readme and haven't cloned or downloaded a release of the Jetendo Server project to your host system, please do so now.
+	
+	You can grab the latest development version from https://github.com/jetendo/jetendo-server/ or a release version from https://www.jetendo.com/
+	
+	The Jetendo Server project holds most of the configuration required by the virtual machine.
+
 Configure Virtualbox
 
 Virtualbox initial setup

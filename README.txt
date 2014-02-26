@@ -5,6 +5,13 @@ This readme is for users that want to install Jetendo Server and Jetendo from sc
 If you downloaded the pre-configured virtual machine from https://www.jetendo.com/ , please use README-FOR-VIRTUAL-MACHINE.txt to get started with it.
 If you don't have README-FOR-VIRTUAL-MACHINE.txt, please download it from https://github.com/jetendo/jetendo-server/ 
 
+Download Jetendo Server 
+	If you're reading this readme and haven't cloned or downloaded a release of the Jetendo Server project to your host system, please do so now.
+	
+	You can grab the latest development version from https://github.com/jetendo/jetendo-server/ or a release version from https://www.jetendo.com/
+	
+	The Jetendo Server project holds most of the configuration required by the virtual machine.
+
 Virtualbox initial setup
 	Ubuntu Linux x64
 	Minimum requirements: 2048mb ram, 5gb hard drive, 1gb 2nd hard drive for swap, 1 NAT network adapter
