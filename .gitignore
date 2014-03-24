@@ -1,5 +1,6 @@
 *.sublime-*
 jetendo
+config
 railo/vhosts/*
 mysql/data/*
 mysql/logs/*
