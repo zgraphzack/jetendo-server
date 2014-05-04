@@ -1,5 +1,5 @@
 Jetendo Server Installation Documentation
-OS: Ubuntu Server 14.04 LTS
+OS: Ubuntu Server 12.04 LTS 
 
 This readme is for users that want to install Jetendo Server and Jetendo from scratch.
 If you downloaded the pre-configured virtual machine from https://www.jetendo.com/ , please use README-FOR-VIRTUAL-MACHINE.txt to get started with it.
@@ -56,11 +56,10 @@ After OS is installed:
 
 # change vi default so insert mode is easier to use.  Type these commands:
 	vi /root/.vimrc
-	press i key twice.
 	set nocompatible
 	Press escape key
-	:wq
-	Now vi insert mode is easier to use by just pressing i once.
+	:quit
+	Now vi insert mode is easier to use.
 
 # force grub screen to NOT wait forever for keypress on failed boot:
 	vi /etc/default/grub
@@ -111,8 +110,6 @@ After OS is installed:
 	service ufw restart
 	
 # Enable empty password autologin for root on development server
-	might also need to run
-		sudo passwd -u root
 	sudo passwd - enter temporary password
 	vi /etc/pam.d/common-auth
 		change nullok_secure to nullok
@@ -120,59 +117,31 @@ After OS is installed:
 		PermitEmptyPasswords Yes
 	vi /etc/shadow
 		delete the password hash for root between the 2 colons so it appears like "root::" on the first line.
-	
 	service ssh restart
 	
 Log out and login as root using ssh for the rest of the instructions.
 
 # If server is a virtual machine
-	apt-get install build-essential module-assistant linux-headers-$(uname -r) dkms
-	apt-get install virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11
-	m-a prepare
-	#rebuild the kernel modules (at any time)
-		uname -r | sudo xargs -n1 /usr/lib/dkms/dkms_autoinstaller start
-	apt-get install --no-install-recommends virtualbox-guest-utils && apt-get install virtualbox-guest-dkms
-	
-	# force the vboxsf dkms kernel module to load before fstab runs
-		vi /etc/default/rcS
-			# add the following line to the bottom of the file:
-			/sbin/modprobe vboxsf
-	
-	# verify the kernel modules are loaded:
-		lsmod | grep vbox
-	
-	Don't need these anymore:
-		apt-get install linux-virtual
-		apt-get install linux-headers-`uname -r` build-essential
+	apt-get install linux-virtual
+	apt-get install linux-headers-`uname -r` build-essential
+	reboot
+
+	# If using virtualbox, install Virtualbox Guest Additions
+		Mount guest additions iso to virtualbox guest
+		apt-get install make gcc
+		mount /dev/cdrom /media/cdrom
+		/media/cdrom/VBoxLinuxGuestAdditions.run
 		reboot
 
-		# If using virtualbox, install Virtualbox Guest Additions
-			Mount guest additions iso to virtualbox guest
-			apt-get install make gcc
-			mount /dev/cdrom /media/cdrom
-			/media/cdrom/VBoxLinuxGuestAdditions.run
-			reboot
-			
-# update hostname
-	for development environment, make sure /etc/hostname matches the value used in the Jetendo configuration for the testDomain affix.  I.e. jetendo.127.0.0.2.xip.io
-	
-
-# Add the contents of /jetendo-server/system/jetendo-fstab.conf and copy the file to /etc/fstab, then run
-	mkdir /opt/jetendo-server
-	cd /opt/jetendo-server
-	mkdir apache nginx mysql php system railo coldfusion
-	mkdir /opt/jetendo 
-	mkdir /opt/zbackup
+# Add the contents of /jetendo/system/jetendo-fstab.conf and copy the file to /etc/fstab, then run
 	mount -a
-	mount mysql fails until it is installed because user doesn't exist yet.
 	
 Add Prerequisite Repositories
-	apt-get install software-properties-common
+	apt-get install python-software-properties
 	apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
-	add-apt-repository 'deb http://mirror.jmu.edu/pub/mariadb/repo/10.0/ubuntu trusty main'
-	
+	add-apt-repository 'deb http://mirror.jmu.edu/pub/mariadb/repo/5.5/ubuntu precise main'
 	add-apt-repository ppa:ondrej/php5
-	add-apt-repository ppa:jon-severinsson/ffmpeg
+	add-apt-repository ppa:stebbins/handbrake-releases
 	add-apt-repository ppa:webupd8team/java
 	apt-get update
 
@@ -183,7 +152,7 @@ Install Required Packages
 	apt-get install php5-fpm php5-cli php5-cgi php5-mysql php5-gd php-apc php5-curl php5-dev php-pear php5-apcu
 	
 	# MariaDB install results in held packages due to mysql release being newer - it is safe to ignore this.
-	apt-get install mariadb-server
+	sudo aptitude install mariadb-server libmysqlclient18=5.5.34+maria-1~precise mysql-common=5.5.34+maria-1~precise
 	
 	# Force usage of mariadb packages
 	apt-get remove php5-mysql rsyslog-mysql
@@ -193,16 +162,9 @@ Install Required Packages
 
 Configure MariaDB
 	service mysql stop
-	#make sure mysql shared folder is mounted if using virtualbox
-		mount -a
 	
 	# to begin with a fresh database, run this command to overwrite your mysql/data folder. WARNING:  If you existing mysql data files on your host system already, don't run this command.
 	cp -rf /var/lib/mysql/* /opt/jetendo-server/mysql/data/
-	
-	update /etc/mysql/debian.cnf
-		# add this line under [client] and [mysql_upgrade]
-		protocol=tcp
-		# create user with access to all databases named 'debian-sys-maint' with the same password that is shown in debian.cnf
 	
 	disable the /root/.mysql_history file
 	export MYSQL_HISTFILE=/dev/null
@@ -221,7 +183,7 @@ Configure Apache2 (Note: Jetendo CMS uses Nginx exclusive, Apache configuration 
 			Listen 127.0.0.3:80
 			Listen 127.0.0.3:443
 	
-	service apache2 restart
+	service apache2 reload
 	
 	If you don't need Apache, it is recommended to disable it from starting with the following command:
 		update-rc.d apache2 disable
@@ -233,8 +195,8 @@ Install Required Software From Source
 	Nginx
 		mkdir /opt/jetendo-server/system/nginx-build
 		cd /opt/jetendo-server/system/nginx-build
-		wget http://nginx.org/download/nginx-1.7.0.tar.gz
-		tar xvfz nginx-1.7.0.tar.gz
+		wget http://nginx.org/download/nginx-1.5.9.tar.gz
+		tar xvfz nginx-1.5.9.tar.gz
 		adduser --system --no-create-home --disabled-login --disabled-password --group nginx
 		
 		Put "sendfile off;" in nginx.conf on test server when using virtualbox shared folders
@@ -248,16 +210,11 @@ Install Required Software From Source
 			unzip master.zip -d /opt/jetendo-server/system/nginx-build/
 			rm master.zip
 		
-		cd /opt/jetendo-server/system/nginx-build/nginx-1.7.0/
+		cd /opt/jetendo-server/system/nginx-build/nginx-1.5.9/
 		./configure --with-http_realip_module  --with-http_spdy_module --prefix=/opt/nginx --user=nginx --group=nginx --with-http_ssl_module --with-http_gzip_static_module  --with-http_flv_module --with-http_mp4_module --with-http_stub_status_module  --add-module=/opt/jetendo-server/system/nginx-build/ngx_devel_kit-master --add-module=/opt/jetendo-server/system/nginx-build/set-misc-nginx-module-master
 		apt-get install make
 		make
 		make install
-		cd /opt/nginx
-		mkdir client_body_temp fastcgi_temp proxy_temp scgi_temp uwsgi_temp ssl
-		chown www-data:root client_body_temp fastcgi_temp proxy_temp scgi_temp uwsgi_temp
-		chmod 770 client_body_temp fastcgi_temp proxy_temp scgi_temp uwsgi_temp
-		chmod 400 ssl
 		
 		# service is not running until symbolic link and reboot steps are followed below
 
@@ -269,19 +226,18 @@ Install Railo
 	Compile and Install Apache APR Library
 		cd /opt/jetendo-server/system/apr-build/
 		# get the newest apr unix gz here: http://apr.apache.org/download.cgi
-		wget http://apache.mirrors.pair.com//apr/apr-1.5.1.tar.gz
-		tar -xvf apr-1.5.1.tar.gz
-		cd apr-1.5.1
+		wget http://apache.mirrors.pair.com//apr/apr-1.5.0.tar.gz
+		tar -xvf apr-1.5.0.tar.gz
+		cd apr-1.5.0
 		./configure
 		make && make install	
 	Compile and Install Tomcat Native Library
 		JAVA_HOME=/usr/lib/jvm/java-7-oracle
 		export JAVA_HOME
 		cd /opt/jetendo-server/system/apr-build/
-		# get the newest tomcat native library source here: http://tomcat.apache.org/download-native.cgi
-		wget http://apache.osuosl.org/tomcat/tomcat-connectors/native/1.1.30/source/tomcat-native-1.1.30-src.tar.gz
-		tar -xvzf tomcat-native-1.1.30-src.tar.gz
-		cd tomcat-native-1.1.30-src/jni/native/
+		wget http://apache.spinellicreations.com//tomcat/tomcat-connectors/native/1.1.29/source/tomcat-native-1.1.29-src.tar.gz
+		tar -xvzf tomcat-native-1.1.29-src.tar.gz
+		cd tomcat-native-1.1.29-src/jni/native/
 		./configure --with-apr=/usr/local/apr/bin/ --with-ssl=/usr/include/openssl --with-java-home=/usr/lib/jvm/java-7-oracle && make && make install
 		
 	Install Railo from newest tomcat x64 binary release on www.getrailo.org
@@ -304,8 +260,8 @@ Install Railo
 		# production
 		cp /opt/jetendo-server/railo/server-production.xml /opt/railo/tomcat/conf/server.xml
 	
-	vi /opt/railo/tomcat/conf/web.xml
-		# Add the init-param xml below this line:
+	/opt/railo/tomcat/conf/web.xml
+		Add the init-param xml below this line:
 			<servlet-class>railo.loader.servlet.CFMLServlet</servlet-class>
 		init-param xml:
 		   <init-param>
@@ -430,9 +386,6 @@ Configure fail2ban:
 
 Configure Postfix to use Sendgrid.net for relying mail.
 	Edit /etc/aliases,  Find the line for "root" and make it "root: EMAIL_ADDRESS" where EMAIL_ADDRESS is the email address that system & security related emails should be forwarded to.
-	Then run "newaliases"
-	
-	comment out line starting with "relayhost" in /etc/postfix/main.cf
 	
 	Relay mail with Sendgrid.net (Optional, but recommended for production servers)
 		Add this to the end /etc/postfix/main.cf where your_username and your_password are replaced with the sendgrid.net login information.
@@ -611,7 +564,6 @@ Configure Jetendo CMS
 				Throw error upon data truncation: false
 				TinyInt(1) is bit: false
 				Legacy Datetime Code: true
-
 	
 	Enable complete null support:
 		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/server.cfm?action=server.compiler
@@ -649,13 +601,12 @@ Configure Jetendo CMS
 		ln -sfn /opt/jetendo/scripts/jetendo.ini /etc/php5/mods-available/jetendo.ini
 	Enable the php configuration module:
 		php5enmod jetendo
-		service php5-fpm restart
 	
 	If you want to run a RELEASE version of Jetendo CMS, follow these steps:
 		Download the release file for the "jetendo" project, and unzip its contents to /opt/jetendo in the virtual machine or server.  Make sure that there is no an extra /opt/jetendo/jetendo directory.  The files should be in /opt/jetendo/
 		Download the release file for the "jetendo-default-theme" project and unzip its contents to /opt/jetendo/themes/jetendo-default-theme in the virtual machine or server. Make sure that there is no an extra /opt/jetendo/themes/jetendo-default-theme/jetendo-default-theme directory.  The files should be in /opt/jetendo/themes/jetendo-default-theme
 		
-		Run this command to install the release without forcing it to use the git repository:
+		Run this command to install it the release without forcing it to use the git repository:
 			php /opt/jetendo/scripts/install.php disableGitIntegration
 		Note: the project will not be installed as a git repository, so you will have to manually perform upgrades in the future.
 		
