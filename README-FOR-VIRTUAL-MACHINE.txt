@@ -1,5 +1,5 @@
 Jetendo Server Installation Documentation
-OS: Ubuntu Server 12.04 LTS 
+OS: Ubuntu Server 14.04 LTS 
 
 This readme is for users that downloaded the pre-configured virtual machine from https://www.jetendo.com/
 
