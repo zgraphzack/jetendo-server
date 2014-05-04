@@ -18,6 +18,17 @@ set_time_limit(300);
 `/usr/sbin/service rsyslog stop`;
 `/usr/sbin/service junglediskserver stop`;
 
+// remove root email from /etc/aliases
+$contents=file_get_contents("/etc/aliases");
+$arr=explode("\n", $contents);
+$arr2=array();
+for($i=0;$i<count($arr);$i++){
+	if(substr(trim($arr[$i]), 0, 4) != "root"){
+		array_push($arr2, $arr[$i]);
+	}
+}
+file_put_contents("/etc/aliases", implode("\n", $arr2));
+
 
 // remove mysql passwords
 $contents=file_get_contents("/etc/mysql/debian.cnf");
