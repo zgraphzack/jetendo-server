@@ -141,17 +141,6 @@ Log out and login as root using ssh for the rest of the instructions.
 	# verify the kernel modules are loaded:
 		lsmod | grep vbox
 	
-	Don't need these anymore:
-		apt-get install linux-virtual
-		apt-get install linux-headers-`uname -r` build-essential
-		reboot
-
-		# If using virtualbox, install Virtualbox Guest Additions
-			Mount guest additions iso to virtualbox guest
-			apt-get install make gcc
-			mount /dev/cdrom /media/cdrom
-			/media/cdrom/VBoxLinuxGuestAdditions.run
-			reboot
 			
 # update hostname
 	for development environment, make sure /etc/hostname matches the value used in the Jetendo configuration for the testDomain affix.  I.e. jetendo.127.0.0.2.xip.io
@@ -305,7 +294,7 @@ Install Railo
 		cp /opt/jetendo-server/railo/server-production.xml /opt/railo/tomcat/conf/server.xml
 	
 	vi /opt/railo/tomcat/conf/web.xml
-		# Add the init-param xml below this line:
+		# Add/uncomment the init-param xml below this line to change the path for WEB-INF directories:
 			<servlet-class>railo.loader.servlet.CFMLServlet</servlet-class>
 		init-param xml:
 		   <init-param>
