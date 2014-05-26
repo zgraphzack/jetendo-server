@@ -1,16 +1,38 @@
 <?php
 
-if(zIsTestServer()){
-	$verifyURL=get_cfg_var("jetendo_admin_domain")."/";
-	$contents=file_get_contents($verifyURL);
+$allowOutput=false;
+if(!isset($configPath)){
+	require_once("library.php");
+	$allowOutput=true;
+}
+if($jetendoAdminDomain==""){
+	// verify if services are running
+
+	// for now just test the file existance
+	if(file_exists("/var/jetendo-server/logs/jetendo_server_down")){
+		echo "0";
+	}else{
+		echo "1";
+	}
 }else{
-	$verifyURL=get_cfg_var("jetendo_test_admin_domain")."/";
+	$verifyURL=$jetendoAdminDomain.":8888/zcorerootmapping/index.cfm?_zsa3_path=/";
+	if($allowOutput){
+		echo "Running URL to check jetendo status:\n".$verifyURL."\nPlease wait...\n";
+	}
 	$contents=file_get_contents($verifyURL);
 }
-if($contents == "OK"){
-	echo "1";
+if($allowOutput){
+//	echo "Response: ".$contents."\n";
+	if($contents === FALSE){
+		echo "jetendo-server is NOT running.\n";
+	}else{
+		echo "jetendo-server is running.\n";
+	}
 }else{
-	echo "0";
+	if($contents === FALSE){
+		echo "0";
+	}else{
+		echo "1";
+	}
 }
-exit;
 ?>

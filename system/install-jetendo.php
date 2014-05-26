@@ -3,12 +3,12 @@
 $gitCloneURL="https://github.com/jetendo/jetendo.git";
 $gitBranch="master";
 
-@mkdir("/opt/jetendo/", 0755);
-chdir("/opt/jetendo/");
+@mkdir("/var/jetendo-server/jetendo/", 0755);
+chdir("/var/jetendo-server/jetendo/");
 // install jetendo source from git repository:
-if(!is_dir("/opt/jetendo/.git/")){
+if(!is_dir("/var/jetendo-server/jetendo/.git/")){
 	echo("Cloning git repository at: ".$gitCloneURL."\n");
-	$r=`/usr/bin/git clone $gitCloneURL /opt/jetendo/`;
+	$r=`/usr/bin/git clone $gitCloneURL /var/jetendo-server/jetendo/`;
 }else{
 	$r=`/usr/bin/git remote add origin $gitCloneURL`;
 	echo("Pulling git repository at: ".$gitCloneURL.", branch: ".$gitBranch."\n");

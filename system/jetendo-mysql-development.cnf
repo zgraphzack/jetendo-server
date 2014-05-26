@@ -5,9 +5,9 @@ protocol=tcp
 [mysqld]
 server-id=100
 lower_case_table_names=1
-datadir		= /opt/jetendo-server/mysql/data
+datadir		= /var/jetendo-server/mysql/data
 tmpdir		= /tmp
-slow_query_log_file	= /opt/jetendo-server/mysql/data/mariadb-slow.log
+slow_query_log_file	= /var/jetendo-server/mysql/data/mariadb-slow.log
 character-set-server  = utf8 
 collation-server      = utf8_general_ci 
 character_set_server   = utf8 

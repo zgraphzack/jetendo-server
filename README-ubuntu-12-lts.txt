@@ -164,7 +164,7 @@ Configure MariaDB
 	service mysql stop
 	
 	# to begin with a fresh database, run this command to overwrite your mysql/data folder. WARNING:  If you existing mysql data files on your host system already, don't run this command.
-	cp -rf /var/lib/mysql/* /opt/jetendo-server/mysql/data/
+	cp -rf /var/lib/mysql/* /var/jetendo-server/mysql/data/
 	
 	disable the /root/.mysql_history file
 	export MYSQL_HISTFILE=/dev/null
@@ -193,8 +193,8 @@ Configure Apache2 (Note: Jetendo CMS uses Nginx exclusive, Apache configuration 
 	
 Install Required Software From Source
 	Nginx
-		mkdir /opt/jetendo-server/system/nginx-build
-		cd /opt/jetendo-server/system/nginx-build
+		mkdir /var/jetendo-server/system/nginx-build
+		cd /var/jetendo-server/system/nginx-build
 		wget http://nginx.org/download/nginx-1.5.9.tar.gz
 		tar xvfz nginx-1.5.9.tar.gz
 		adduser --system --no-create-home --disabled-login --disabled-password --group nginx
@@ -202,29 +202,29 @@ Install Required Software From Source
 		Put "sendfile off;" in nginx.conf on test server when using virtualbox shared folders
 		
 		#download and unzip nginx modules
-			cd /opt/jetendo-server/system/nginx-build/
+			cd /var/jetendo-server/system/nginx-build/
 			wget https://github.com/simpl/ngx_devel_kit/archive/master.zip
-			unzip master.zip -d /opt/jetendo-server/system/nginx-build/
+			unzip master.zip -d /var/jetendo-server/system/nginx-build/
 			rm master.zip
 			wget https://github.com/agentzh/set-misc-nginx-module/archive/master.zip
-			unzip master.zip -d /opt/jetendo-server/system/nginx-build/
+			unzip master.zip -d /var/jetendo-server/system/nginx-build/
 			rm master.zip
 		
-		cd /opt/jetendo-server/system/nginx-build/nginx-1.5.9/
-		./configure --with-http_realip_module  --with-http_spdy_module --prefix=/opt/nginx --user=nginx --group=nginx --with-http_ssl_module --with-http_gzip_static_module  --with-http_flv_module --with-http_mp4_module --with-http_stub_status_module  --add-module=/opt/jetendo-server/system/nginx-build/ngx_devel_kit-master --add-module=/opt/jetendo-server/system/nginx-build/set-misc-nginx-module-master
+		cd /var/jetendo-server/system/nginx-build/nginx-1.5.9/
+		./configure --with-http_realip_module  --with-http_spdy_module --prefix=/var/jetendo-server/nginx --user=nginx --group=nginx --with-http_ssl_module --with-http_gzip_static_module  --with-http_flv_module --with-http_mp4_module --with-http_stub_status_module  --add-module=/var/jetendo-server/system/nginx-build/ngx_devel_kit-master --add-module=/var/jetendo-server/system/nginx-build/set-misc-nginx-module-master
 		apt-get install make
 		make
 		make install
 		
 		# service is not running until symbolic link and reboot steps are followed below
 
-	add mime-types to /opt/nginx/conf/mime.types
+	add mime-types to /var/jetendo-server/nginx/conf/mime.types
 		application/x-font-ttf             ttf;
 		font/opentype                      otf;
 	
 Install Railo
 	Compile and Install Apache APR Library
-		cd /opt/jetendo-server/system/apr-build/
+		cd /var/jetendo-server/system/apr-build/
 		# get the newest apr unix gz here: http://apr.apache.org/download.cgi
 		wget http://apache.mirrors.pair.com//apr/apr-1.5.0.tar.gz
 		tar -xvf apr-1.5.0.tar.gz
@@ -234,14 +234,14 @@ Install Railo
 	Compile and Install Tomcat Native Library
 		JAVA_HOME=/usr/lib/jvm/java-7-oracle
 		export JAVA_HOME
-		cd /opt/jetendo-server/system/apr-build/
+		cd /var/jetendo-server/system/apr-build/
 		wget http://apache.spinellicreations.com//tomcat/tomcat-connectors/native/1.1.29/source/tomcat-native-1.1.29-src.tar.gz
 		tar -xvzf tomcat-native-1.1.29-src.tar.gz
 		cd tomcat-native-1.1.29-src/jni/native/
 		./configure --with-apr=/usr/local/apr/bin/ --with-ssl=/usr/include/openssl --with-java-home=/usr/lib/jvm/java-7-oracle && make && make install
 		
 	Install Railo from newest tomcat x64 binary release on www.getrailo.org
-		/opt/jetendo-server/system/railo/railo-4.1.2.005-pl0-linux-x64-installer.run
+		/var/jetendo-server/system/railo/railo-4.1.2.005-pl0-linux-x64-installer.run
 		When it asks for the user to run Railo as, type in: www-data
 		Start railo at boot time: Y
 		Don't allow installation of apache connectors: n
@@ -249,31 +249,31 @@ Install Railo
 		
 	Put newest JRE In Railo:
 		service railo_ctl stop
-		rm -rf /opt/railo/jdk/jre
-		mkdir /opt/railo/jdk/jre
-		/bin/cp -rf /usr/lib/jvm/java-7-oracle/jre/* /opt/railo/jdk/jre
-		chown -R www-data. /opt/railo/jdk/jre
+		rm -rf /var/jetendo-server/railo/jdk/jre
+		mkdir /var/jetendo-server/railo/jdk/jre
+		/bin/cp -rf /usr/lib/jvm/java-7-oracle/jre/* /var/jetendo-server/railo/jdk/jre
+		chown -R www-data. /var/jetendo-server/railo/jdk/jre
 	
 	# install the server.xml for production or development
 		# development
-		cp /opt/jetendo-server/railo/server-development.xml /opt/railo/tomcat/conf/server.xml
+		cp /var/jetendo-server/railo/server-development.xml /var/jetendo-server/railo/tomcat/conf/server.xml
 		# production
-		cp /opt/jetendo-server/railo/server-production.xml /opt/railo/tomcat/conf/server.xml
+		cp /var/jetendo-server/railo/server-production.xml /var/jetendo-server/railo/tomcat/conf/server.xml
 	
-	/opt/railo/tomcat/conf/web.xml
+	/var/jetendo-server/railo/tomcat/conf/web.xml
 		Add the init-param xml below this line:
 			<servlet-class>railo.loader.servlet.CFMLServlet</servlet-class>
 		init-param xml:
 		   <init-param>
 				<param-name>railo-web-directory</param-name> 
-				<param-value>/opt/jetendo-server/railo/vhosts/{web-context-hash}/</param-value>
+				<param-value>/var/jetendo-server/railo/vhosts/{web-context-hash}/</param-value>
 				
 				<description>Railo Web Directory directory</description> 
 			</init-param>
 	service railo_ctl start
 	
 	vi /etc/logrotate.d/tomcat
-	/opt/railo/tomcat/logs/catalina.out {
+	/var/jetendo-server/railo/tomcat/logs/catalina.out {
 		copytruncate
 		daily
 		rotate 7
@@ -286,7 +286,7 @@ Install Railo
 Install Coldfusion 9.0.2 (Jetendo CMS uses Railo exclusively, Coldfusion installation is optional)
 	apt-get install libstdc++5
 	download coldfusion 9 developer editing linux 64-bit from adobe: http://www.adobe.com/support/coldfusion/downloads_updates.html#cf9
-	/opt/jetendo-server/system/coldfusion/install/ColdFusion_9_WWEJ_linux64.bin
+	/var/jetendo-server/system/coldfusion/install/ColdFusion_9_WWEJ_linux64.bin
 	http://127.0.0.2:8500/CFIDE/administrator/index.cfm
 	
 Download Install Newest Intel Ethernet Adapter Driver If Production Server Use Intel Device
@@ -309,41 +309,41 @@ Install Optional Packages If You Want Them:
 # dev server manually modified files
 	
 # development server symbolic link configuration
-	ln -sfn /opt/jetendo-server/system/jetendo-mysql-development.cnf /etc/mysql/conf.d/jetendo-mysql-development.cnf
-	ln -sfn /opt/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx
-	ln -sfn /opt/jetendo-server/system/nginx-conf/nginx-development.conf /opt/nginx/conf/nginx.conf
-	ln -sfn /opt/jetendo-server/system/jetendo-sysctl-development.conf /etc/sysctl.d/jetendo-sysctl-development.conf
-	ln -sfn /opt/jetendo-server/system/monit/jetendo.txt /etc/monit/conf.d/jetendo.txt
-	ln -sfn /opt/jetendo-server/system/apache-conf/sites-enabled /etc/apache2/sites-enabled
-	ln -sfn /opt/jetendo-server/system/php/pool.d /etc/php5/fpm/pool.d
+	ln -sfn /var/jetendo-server/system/jetendo-mysql-development.cnf /etc/mysql/conf.d/jetendo-mysql-development.cnf
+	ln -sfn /var/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx
+	ln -sfn /var/jetendo-server/system/nginx-conf/nginx-development.conf /var/jetendo-server/nginx/conf/nginx.conf
+	ln -sfn /var/jetendo-server/system/jetendo-sysctl-development.conf /etc/sysctl.d/jetendo-sysctl-development.conf
+	ln -sfn /var/jetendo-server/system/monit/jetendo.txt /etc/monit/conf.d/jetendo.txt
+	ln -sfn /var/jetendo-server/system/apache-conf/sites-enabled /etc/apache2/sites-enabled
+	ln -sfn /var/jetendo-server/system/php/pool.d /etc/php5/fpm/pool.d
 	
 # production server symbolic link configuration
-	ln -sfn /opt/jetendo-server/system/jetendo-mysql-production.cnf /etc/mysql/conf.d/jetendo-mysql-production.cnf
-	ln -sfn /opt/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx
-	ln -sfn /opt/jetendo-server/system/nginx-conf/nginx-production.conf /opt/nginx/conf/nginx.conf
-	ln -sfn /opt/jetendo-server/system/jetendo-sysctl-production.conf /etc/sysctl.d/jetendo-sysctl-production.conf
-	ln -sfn /opt/jetendo-server/system/monit/jetendo.txt /etc/monit/conf.d/jetendo.txt
-	ln -sfn /opt/jetendo-server/system/apache-conf/sites-enabled /etc/apache2/sites-enabled
-	ln -sfn /opt/jetendo-server/system/php/pool.d /etc/php5/fpm/pool.d
+	ln -sfn /var/jetendo-server/system/jetendo-mysql-production.cnf /etc/mysql/conf.d/jetendo-mysql-production.cnf
+	ln -sfn /var/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx
+	ln -sfn /var/jetendo-server/system/nginx-conf/nginx-production.conf /var/jetendo-server/nginx/conf/nginx.conf
+	ln -sfn /var/jetendo-server/system/jetendo-sysctl-production.conf /etc/sysctl.d/jetendo-sysctl-production.conf
+	ln -sfn /var/jetendo-server/system/monit/jetendo.txt /etc/monit/conf.d/jetendo.txt
+	ln -sfn /var/jetendo-server/system/apache-conf/sites-enabled /etc/apache2/sites-enabled
+	ln -sfn /var/jetendo-server/system/php/pool.d /etc/php5/fpm/pool.d
 	
 # enable apparmor profiles:
 	development server:
-		cp -f /opt/jetendo-server/system/apparmor.d/development/opt.nginx.sbin.nginx /etc/apparmor.d/opt.nginx.sbin.nginx
-		cp -f /opt/jetendo-server/system/apparmor.d/development/opt.railo.jdk.jre.bin.java /etc/apparmor.d/opt.railo.jdk.jre.bin.java
-		cp -f /opt/jetendo-server/system/apparmor.d/development/usr.bin.mysql /etc/apparmor.d/usr.bin.mysql
-		cp -f /opt/jetendo-server/system/apparmor.d/development/usr.sbin.php5-fpm /etc/apparmor.d/usr.sbin.php5-fpm
+		cp -f /var/jetendo-server/system/apparmor.d/development/opt.nginx.sbin.nginx /etc/apparmor.d/opt.nginx.sbin.nginx
+		cp -f /var/jetendo-server/system/apparmor.d/development/opt.railo.jdk.jre.bin.java /etc/apparmor.d/opt.railo.jdk.jre.bin.java
+		cp -f /var/jetendo-server/system/apparmor.d/development/usr.bin.mysql /etc/apparmor.d/usr.bin.mysql
+		cp -f /var/jetendo-server/system/apparmor.d/development/usr.sbin.php5-fpm /etc/apparmor.d/usr.sbin.php5-fpm
 		apparmor_parser -r /etc/apparmor.d/
 	production server:
-		cp -f /opt/jetendo-server/system/apparmor.d/production/opt.nginx.sbin.nginx /etc/apparmor.d/opt.nginx.sbin.nginx
-		cp -f /opt/jetendo-server/system/apparmor.d/production/opt.railo.jdk.jre.bin.java /etc/apparmor.d/opt.railo.jdk.jre.bin.java
-		cp -f /opt/jetendo-server/system/apparmor.d/production/usr.bin.mysql /etc/apparmor.d/usr.bin.mysql
-		cp -f /opt/jetendo-server/system/apparmor.d/production/usr.sbin.php5-fpm /etc/apparmor.d/usr.sbin.php5-fpm
+		cp -f /var/jetendo-server/system/apparmor.d/production/opt.nginx.sbin.nginx /etc/apparmor.d/opt.nginx.sbin.nginx
+		cp -f /var/jetendo-server/system/apparmor.d/production/opt.railo.jdk.jre.bin.java /etc/apparmor.d/opt.railo.jdk.jre.bin.java
+		cp -f /var/jetendo-server/system/apparmor.d/production/usr.bin.mysql /etc/apparmor.d/usr.bin.mysql
+		cp -f /var/jetendo-server/system/apparmor.d/production/usr.sbin.php5-fpm /etc/apparmor.d/usr.sbin.php5-fpm
 		apparmor_parser -r /etc/apparmor.d/
 	
 	configure the profiles to be specific to your application by editing them in /etc/apparmor.d/ directly.
 	
 # generate self-signed ssl certs for development
-	cd /opt/jetendo-server/system/ssl/
+	cd /var/jetendo-server/system/ssl/
 	openssl genrsa -out dev.com.key 2048
 	openssl rsa -in dev.com.key -out dev.com.pem
 	openssl req -new -key dev.com.key -out dev.com.csr
@@ -434,8 +434,8 @@ Configure Jungledisk (Optional)
 		Download 64-bit Server Edition Software from this URL:
 		https://www.jungledisk.com/downloads/business/server/linux/
 		
-		Place in /opt/jetendo-server/system/ and run this command to install it.  Make sure the file name matches the file you downloaded.
-		dpkg -i /opt/jetendo-server/system/junglediskserver_316-0_amd64.deb
+		Place in /var/jetendo-server/system/ and run this command to install it.  Make sure the file name matches the file you downloaded.
+		dpkg -i /var/jetendo-server/system/junglediskserver_316-0_amd64.deb
 		
 		Reset the license key on your jungledisk.com account page and replace LICENSE_KEY below with the key they generated for you.
 		vi /etc/jungledisk/junglediskserver-license.xml
@@ -493,9 +493,9 @@ Visit http://xip.io/ to understand how this free service helps you create develo
 	http://mydomain.com.127.0.0.1.xip.io/ would attempt to connection to 127.0.0.1 with the host name mydomain.com.127.0.0.1.xip.io. 
 	Jetendo has been designed to support this service by default.
 	
-one listen path for each fastcgi pool.   /etc/php5/fpm/pool.d/dev.com.conf  - but lets symbolic link it to /opt/jetendo-server/system/php/fpm-pool-conf/
+one listen path for each fastcgi pool.   /etc/php5/fpm/pool.d/dev.com.conf  - but lets symbolic link it to /var/jetendo-server/system/php/fpm-pool-conf/
 			[dev.com]
-			listen = /opt/jetendo-server/php/run/fpm.dev.com.sock
+			listen = /var/jetendo-server/php/run/fpm.dev.com.sock
 			listen.owner = www-user
 			listen.mode = 0600
 			user = devsite1
@@ -509,7 +509,7 @@ one listen path for each fastcgi pool.   /etc/php5/fpm/pool.d/dev.com.conf  - bu
 	chown devsite1:www-data /var/www/devsite1
 	
 	for devsite1.com, nginx uses
-		fastcgi_pass unix:/opt/jetendo-server/php/run/fpm.devsite1.sock;
+		fastcgi_pass unix:/var/jetendo-server/php/run/fpm.devsite1.sock;
 
 Reboot the virtual machine to ensure all services are installed and running before continuing with Jetendo CMS installation
 	At a shell prompt, type: 
@@ -523,9 +523,9 @@ Configure Jetendo CMS
 	Install the Jetendo source code from git by running the php script below from the command line.
 	You can edit this file to change the git repo or branch if you want to work on a fork or different branch of the project.  If you intend to contribute to the project, it would be wise to create a fork first.  You can always change your git remote origin later.
 	Note: If you want to run a RELEASE version of Jetendo CMS, skip running this file.
-		php /opt/jetendo-server/system/install-jetendo.php
+		php /var/jetendo-server/system/install-jetendo.php
 		
-	Add the following mappings to the Railo web admin for the /opt/jetendo/ context:
+	Add the following mappings to the Railo web admin for the /var/jetendo-server/jetendo/ context:
 		Railo web admin URL for VirtualBox (create a new password if it asks.)
 		
 		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/web.cfm?action=resources.mappings
@@ -534,20 +534,20 @@ Configure Jetendo CMS
 		For example, if request.zos.adminDomain = "http://jetendo.your-company.com";
 		Then the correct configuration is:
 			Virtual: /zcorecachemapping
-			Resource Path: /opt/jetendo/sites-writable/jetendo_your-company_com/_cache
+			Resource Path: /var/jetendo-server/jetendo/sites-writable/jetendo_your-company_com/_cache
 		
 		Virtual: /zcorerootmapping
-		Resource Path: /opt/jetendo/core
+		Resource Path: /var/jetendo-server/jetendo/core
 		After creating "/zcorerootmapping", click the edit icon and make sure "Top level accessible" is checked and click save.
 		
 		Virtual: /jetendo-themes
-		Resource Path: /opt/jetendo/themes
+		Resource Path: /var/jetendo-server/jetendo/themes
 		
 		Virtual: /jetendo-sites-writable
-		Resource Path: /opt/jetendo/sites-writable
+		Resource Path: /var/jetendo-server/jetendo/sites-writable
 		
 		Virtual: /jetendo-database-upgrade
-		Resource Path: /opt/jetendo/database-upgrade
+		Resource Path: /var/jetendo-server/jetendo/database-upgrade
 	
 	Setup the Jetendo datasource - the database, datasource, jetendo_datasource, and request.zos.zcoreDatasource must all be the same name.
 		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/web.cfm?action=services.datasource
@@ -575,44 +575,44 @@ Configure Jetendo CMS
 		
 	Configure Railo security sandbox
 		http://jetendo.your-company.com.127.0.0.2.xip.io:8888/railo-context/admin/server.cfm?action=security.access&sec_tab=SPECIAL
-		Under Create new context, select "b180779e6dc8f3bb6a8ea14a604d83d4 (/opt/jetendo/sites)" and click Create
+		Under Create new context, select "b180779e6dc8f3bb6a8ea14a604d83d4 (/var/jetendo-server/jetendo/sites)" and click Create
 		Then click edit next to the specific web context
 		On a production server, set General Access for read and write to "closed" when you don't need to access the Railo admin.   You can re-enable it only when you need to make changes.
 		Under File Access, select "Local" and enter the following directories. 
 			Note: In Railo 4.2, you have to enter one directory at a time by submitting the form with one entered, and then click edit again to enter the next one.
-			/opt/jetendo/core
-			/opt/jetendo/sites
-			/opt/jetendo/share
-			/opt/jetendo/execute
-			/opt/jetendo/public
-			/opt/jetendo-server/railo/vhosts/b180779e6dc8f3bb6a8ea14a604d83d4/temp
-			/opt/jetendo/sites-writable
-			/opt/jetendo/themes
-			/opt/jetendo/database-upgrade
+			/var/jetendo-server/jetendo/core
+			/var/jetendo-server/jetendo/sites
+			/var/jetendo-server/jetendo/share
+			/var/jetendo-server/jetendo/execute
+			/var/jetendo-server/jetendo/public
+			/var/jetendo-server/railo/vhosts/b180779e6dc8f3bb6a8ea14a604d83d4/temp
+			/var/jetendo-server/jetendo/sites-writable
+			/var/jetendo-server/jetendo/themes
+			/var/jetendo-server/jetendo/database-upgrade
 			/zbackup/backup
 		Uncheck "Direct Java Access"
 		Uncheck all the boxes under "Tags & Functions" - Jetendo CMS intentionally allows not using these features to be more secure.
 		
 	Edit the values in the following files to match the configuration of your system.
-		/opt/jetendo/core/config.cfc
-		/opt/jetendo/scripts/jetendo.ini
+		/var/jetendo-server/jetendo/core/config.cfc
+		/var/jetendo-server/jetendo/scripts/jetendo.ini
 	
 	Make sure the jetendo.ini symbolic link is created:
-		ln -sfn /opt/jetendo/scripts/jetendo.ini /etc/php5/mods-available/jetendo.ini
+		ln -sfn /var/jetendo-server/jetendo/scripts/jetendo.ini /etc/php5/mods-available/jetendo.ini
 	Enable the php configuration module:
 		php5enmod jetendo
 	
 	If you want to run a RELEASE version of Jetendo CMS, follow these steps:
-		Download the release file for the "jetendo" project, and unzip its contents to /opt/jetendo in the virtual machine or server.  Make sure that there is no an extra /opt/jetendo/jetendo directory.  The files should be in /opt/jetendo/
-		Download the release file for the "jetendo-default-theme" project and unzip its contents to /opt/jetendo/themes/jetendo-default-theme in the virtual machine or server. Make sure that there is no an extra /opt/jetendo/themes/jetendo-default-theme/jetendo-default-theme directory.  The files should be in /opt/jetendo/themes/jetendo-default-theme
+		Download the release file for the "jetendo" project, and unzip its contents to /var/jetendo-server/jetendo in the virtual machine or server.  Make sure that there is no an extra /var/jetendo-server/jetendo/jetendo directory.  The files should be in /var/jetendo-server/jetendo/
+		Download the release file for the "jetendo-default-theme" project and unzip its contents to /var/jetendo-server/jetendo/themes/jetendo-default-theme in the virtual machine or server. Make sure that there is no an extra /var/jetendo-server/jetendo/themes/jetendo-default-theme/jetendo-default-theme directory.  The files should be in /var/jetendo-server/jetendo/themes/jetendo-default-theme
 		
 		Run this command to install it the release without forcing it to use the git repository:
-			php /opt/jetendo/scripts/install.php disableGitIntegration
+			php /var/jetendo-server/jetendo/scripts/install.php disableGitIntegration
 		Note: the project will not be installed as a git repository, so you will have to manually perform upgrades in the future.
 		
 	If you want to run the DEVELOPMENT version of Jetendo CMS, follow these steps:
 		Run this command to install the Jetendo CMS cron jobs and verify the integrity of the source code.
-			php /opt/jetendo/scripts/install.php
+			php /var/jetendo-server/jetendo/scripts/install.php
 		Any updates since the last time you ran this installation file, will be pulled from github.com.
 		Note: The project will be installed as a git respository.
 		
@@ -633,7 +633,7 @@ Configure Jetendo CMS
 Preparing the virtual machine for distribution:
 	Run these commands inside the virtual machine - it will automatically poweroff when complete.
 		killall -9 php
-		php /opt/jetendo-server/system/clean-machine.php
+		php /var/jetendo-server/system/clean-machine.php
 	In host, run compact on the vdi file - Windows command line example:
 		"C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" modifyhd jetendo-server-os.vdi --compact
 	# The VDI files should be less then 4gb afterwards.

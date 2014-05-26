@@ -2,40 +2,62 @@
 // This script prepares the virtual machine for being distributed.   It attempts to remove all private data and zero the available space so we can run the VDI compact command to reduce the size of the machine file.
 // "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" modifyhd jetendo-server-os.vdi --compact
 
-// run this before running this php /opt/jetendo-server/system/clean-machine.php
-// killall -9 php
+// Run this script manually like this:
+// php /var/jetendo-server/system/clean-machine.php
 
 
 set_time_limit(300);
+$arrResetCommand=array();
 
-`/usr/sbin/service monit stop`;
-`/usr/sbin/service railo_ctl forcequit`;
-`/usr/sbin/service nginx stop`;
-`/usr/sbin/service mysql stop`;
-`/usr/sbin/service php5-fpm stop`;
-`/usr/sbin/service cron stop`;
-`/usr/sbin/service postfix stop`;
+require("jetendo-stop.php");
+
+if($environment == 'production'){
+	echo "You can't run this script on the production server.";
+	exit;
+}
+
+$cmd="/bin/echo 'dev' > /etc/hostname 2>&1";
+$r=`$cmd`;
+echo $r."\n";
+
+// copy all config files
+for($i=0;$i<count($arrResetCommand);$i++){
+	$cmd=$arrResetCommand[$i];
+	echo "Running reset command: ".$cmd."\n";
+	$r=`$cmd 2>&1`;
+	echo $r."\n";
+}
+
+`/usr/sbin/deluser dev`;
 `/usr/sbin/service rsyslog stop`;
-`/usr/sbin/service junglediskserver stop`;
+`/usr/sbin/service postfix stop`;
+
+// flush postfix queues
+`/usr/sbin/postfix flush`;
+`/usr/sbin/postsuper -d ALL`;
 
 // remove root email from /etc/aliases
-$contents=file_get_contents("/etc/aliases");
-$arr=explode("\n", $contents);
-$arr2=array();
-for($i=0;$i<count($arr);$i++){
-	if(substr(trim($arr[$i]), 0, 4) != "root"){
-		array_push($arr2, $arr[$i]);
+if(file_exists("/etc/aliases")){
+	$contents=file_get_contents("/etc/aliases");
+	$arr=explode("\n", $contents);
+	$arr2=array();
+	for($i=0;$i<count($arr);$i++){
+		if(substr(trim($arr[$i]), 0, 4) != "root"){
+			array_push($arr2, $arr[$i]);
+		}
 	}
+	file_put_contents("/etc/aliases", implode("\n", $arr2));
+	`/usr/bin/newaliases`;
 }
-file_put_contents("/etc/aliases", implode("\n", $arr2));
-
 
 // remove mysql passwords
-$contents=file_get_contents("/etc/mysql/debian.cnf");
-$pattern = '/password =(.*)/i';
-$replace='password =';
-$contents=preg_replace ($pattern , $replace , $contents);
-file_put_contents("/etc/mysql/debian.cnf", $contents);
+if(file_exists("/etc/mysql/debian.cnf")){
+	$contents=file_get_contents("/etc/mysql/debian.cnf");
+	$pattern = '/password =(.*)/i';
+	$replace='password =';
+	$contents=preg_replace ($pattern , $replace , $contents);
+	file_put_contents("/etc/mysql/debian.cnf", $contents);
+}
 
 if ($handle = opendir('/home/')) {
     while (false !== ($entry = readdir($handle))) {
@@ -67,12 +89,13 @@ $cmd="/bin/rm -rf /tmp/*";
 `$cmd`;
 
 // remove the railo server admin password
-$contents=file_get_contents("/opt/railo/lib/railo-server/context/railo-server.xml");
-$pattern = '/railo-configuration pw="([^"]*)"/i';
-$replace='railo-configuration pw=""';
-$contents=preg_replace ($pattern , $replace , $contents, 1);
-file_put_contents("/opt/railo/lib/railo-server/context/railo-server.xml", $contents);
-
+if(file_exists("/var/jetendo-server/railo/lib/railo-server/context/railo-server.xml")){
+	$contents=file_get_contents("/var/jetendo-server/railo/lib/railo-server/context/railo-server.xml");
+	$pattern = '/railo-configuration pw="([^"]*)"/i';
+	$replace='railo-configuration pw=""';
+	$contents=preg_replace ($pattern , $replace , $contents, 1);
+	file_put_contents("/var/jetendo-server/railo/lib/railo-server/context/railo-server.xml", $contents);
+}
 # Removing smtp login between # jetendo-custom-smtp-begin and # jetendo-custom-smtp-end
 if(file_exists("/etc/postfix/main.cf")){
 	$main=file_get_contents("/etc/postfix/main.cf");
@@ -104,21 +127,28 @@ echo `$cmd`;
 $cmd='/usr/bin/dpkg -l linux-headers-* | /usr/bin/awk \'/^ii/{ print $2}\' | /bin/grep -v -e `uname -r | /usr/bin/cut -f1,2 -d"-"` | /bin/grep -e [0-9] | /usr/bin/xargs /usr/bin/apt-get -y purge';
 echo `$cmd`;
 
-`/bin/cp -f /opt/jetendo-server/system/railo/server.xml /opt/railo/tomcat/conf/server.xml`;
-`/bin/rm -rf /opt/railo/lib/railo-server/context/cfclasses/*`;
-`/bin/rm -rf /opt/railo/tomcat/*.log`;
-`/bin/rm -rf /opt/railo/tomcat/logs/*`;
-`/bin/rm -rf /opt/railo/tomcat/temp/*`;
-`/bin/rm -rf /opt/railo/lib/railo-server/context/logs/*`;
-`/bin/rm -rf /opt/railo/lib/railo-server/context/temp/*`;
-`/bin/rm -rf /opt/railo/tomcat/conf/Catalina/*`;
-`/bin/rm -rf /opt/railo/tomcat/webapps/ROOT/WEB-INF/*`;
-`/bin/rm -rf /opt/jetendo/sites/WEB-INF/*`;
-`/bin/rm -rf /opt/railo/tomcat/work/Catalina/*`;
+`/bin/cp -f /var/jetendo-server/system/railo/server-development.xml /var/jetendo-server/railo/tomcat/conf/server.xml`;
+`/bin/rm -rf /var/jetendo-server/railo/lib/railo-server/context/cfclasses/*`;
+`/bin/rm -rf /var/jetendo-server/railo/tomcat/*.log`;
+`/bin/rm -rf /var/jetendo-server/railo/tomcat/logs/*`;
+`/bin/rm -rf /var/jetendo-server/railo/tomcat/temp/*`;
+`/bin/rm -rf /var/jetendo-server/railo/lib/railo-server/context/logs/*`;
+`/bin/rm -rf /var/jetendo-server/railo/lib/railo-server/context/temp/*`;
+`/bin/rm -rf /var/jetendo-server/railo/tomcat/conf/Catalina/*`;
+`/bin/rm -rf /var/jetendo-server/railo/tomcat/webapps/ROOT/WEB-INF`;
+`/bin/rm -rf /var/jetendo-server/railo/tomcat/work/Catalina/*`;
+`/bin/rm -rf /var/jetendo-server/nginx/*_temp/*`;
+`/bin/rm -rf /var/cache/oracle-jdk7-installer`;
 `/bin/rm -rf /tmp/*`;
 `/bin/rm -rf /var/log/*.log`;
 `/bin/rm -rf /var/log/*.log.*.gz`;
-`/bin/rm -rf /opt/nginx/logs/*`;
+`/bin/rm -f /var/log/mysql/*`;
+`/bin/rm -f /var/log/*`;
+`/bin/rm -f /var/log/apt/*`;
+`/bin/rm -f /var/log/upstart/*`;
+`/bin/rm -f /var/log/apache2/*`;
+`/bin/rm -f /var/log/samba/*`;
+`/bin/rm -rf /var/jetendo-server/nginx/logs/*`;
 `/bin/rm -rf /etc/jungledisk/junglediskserver-license.xml`;
 
 $f = @fopen("/root/.bash_history", "r+");
@@ -127,12 +157,12 @@ if ($f !== false) {
     fclose($f);
 }
 @unlink("/root/mbox");
-echo `/bin/umount -f /opt/jetendo-server/apache`;
-echo `/bin/umount -f /opt/jetendo-server/coldfusion`;
-echo `/bin/umount -f /opt/jetendo-server/railo`;
-echo `/bin/umount -f /opt/jetendo-server/php`;
-echo `/bin/umount -f /opt/jetendo-server/nginx`;
-echo `/bin/umount -f /opt/jetendo-server/mysql`;
+echo `/bin/umount -f /var/jetendo-server/apache`;
+echo `/bin/umount -f /var/jetendo-server/coldfusion`;
+echo `/bin/umount -f /var/jetendo-server/railo`;
+echo `/bin/umount -f /var/jetendo-server/php`;
+echo `/bin/umount -f /var/jetendo-server/nginx`;
+echo `/bin/umount -f /var/jetendo-server/mysql`;
 
 	// make sure those directories above are empty for security.
 
@@ -140,6 +170,7 @@ echo `/bin/umount -f /opt/jetendo-server/mysql`;
 echo `/bin/dd if=/dev/zero of=/bigemptyfile bs=4096k`;
 echo `/bin/rm -rf /bigemptyfile`;
 
-`/sbin/poweroff`;
+
 echo "done";
+//`/sbin/poweroff`;
 ?>

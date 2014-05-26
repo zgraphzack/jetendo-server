@@ -127,7 +127,8 @@ keepAliveTimeout="2000"  URIEncoding="UTF-8"
                resourceName="UserDatabase"/>
       </Realm>
 
-    <Host name="127.0.0.1" appBase="webapps"  unpackWARs="true" autoDeploy="true" ><Context path="" docBase="/opt/jetendo/sites" /></Host> 
+    <Host name="127.0.0.1" appBase="webapps"  unpackWARs="true" autoDeploy="true" ><Context path="" docBase="/var/jetendo-server/jetendo/sites" /></Host> 
+	
         <Valve className="org.apache.catalina.valves.RemoteIpValve" />
     </Engine>
   </Service>

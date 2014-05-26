@@ -1,0 +1,54 @@
+#!/bin/bash
+# chkconfig: 345 22 78
+# description: Jetendo Server Control Script
+
+### BEGIN INIT INFO
+# Provides:          jetendo-server
+# Required-Start:    $local_fs $remote_fs $syslog
+# Required-Stop:     $local_fs $remote_fs $syslog $network
+# Default-Start:     3 4 5
+# Default-Stop:      0 6
+# Short-Description: Jetendo Server Control Script
+# Description:       This is the control script that starts and stops Jetendo Server.
+### END INIT INFO
+
+logfile="/var/log/jetendo-server.log"
+
+restart() {
+	/usr/bin/php /var/jetendo-server/system/jetendo-stop.php | tee -a $logfile
+	/usr/bin/php /var/jetendo-server/system/jetendo-start.php | tee -a $logfile
+}
+start() {
+	/usr/bin/php /var/jetendo-server/system/jetendo-start.php | tee -a $logfile
+}
+stop() {
+	/usr/bin/php /var/jetendo-server/system/jetendo-stop.php | tee -a $logfile
+}
+status() {
+	/usr/bin/php /var/jetendo-server/system/jetendo-status.php
+}
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  forcequit)
+        stop
+        ;;
+  restart)
+        stop
+        start
+        ;;
+  status)
+        status
+        ;;
+  *)
+        echo " * Usage: $0 {start|stop|restart|forcequit|status}"
+        exit 1
+        ;;
+esac
+
+exit 0

@@ -61,7 +61,7 @@ Verify the VirtualBox shared folders are working:
 		MySQL/MariaDB, Host Ip: 127.0.0.2: Host Port: 3306, Guest Ip: 127.0.0.1, Guest Port: 3306
 		
 	Run this command and verify that the directory isn't empty.
-		ls -al /opt/jetendo-server/system
+		ls -al /var/jetendo-server/system
 	
 	If the directory was empty, you most likely need to update the VirtualBox Guest Additions because you are running a different version then our version.  
 	
@@ -72,20 +72,20 @@ Verify the VirtualBox shared folders are working:
 		3. Type: mount /dev/cdrom /media/cdrom
 		4. Type: /media/cdrom/VBoxLinuxAdditions.run
 		5. Type: reboot and then login to SSH again when system is done rebooting.
-		6. Verify the shared folder is working by typing: ls -al /opt/jetendo-server/system
+		6. Verify the shared folder is working by typing: ls -al /var/jetendo-server/system
 		7. If you still have trouble, make sure the path is correct on the host system in the shared folders configuration and that you have a complete copy of the Jetendo Server project available at https://github.com/jetendo/jetendo-server
 
 Configure MySQL (MariaDB):
-	If you already have database data files installed at /opt/mysql/data through the virtualbox shared folders, skip this step.
+	If you already have database data files installed at /var/jetendo-server/mysql/data through the virtualbox shared folders, skip this step.
 	
 	To reinstall the initial mysql tables, run this command:
-		/usr/bin/mysql_install_db --user=mysql --basedir=/usr --datadir=/opt/jetendo-server/mysql/data
+		/usr/bin/mysql_install_db --user=mysql --basedir=/usr --datadir=/var/jetendo-server/mysql/data
 	
 	Restart mysql service:
 		/usr/sbin/service mysql restart
 		
 	Then run:
-		cd /opt/jetendo-server/mysql/logs/
+		cd /var/jetendo-server/mysql/logs/
 		/usr/bin/mysql_secure_installation --defaults-file=/etc/mysql/my.cnf
 		
 		If you get a permission error, you can temporary set apparmor profile to complain mode with this command:  aa-complain mysql    and then set it back to enforce after completing the install with this command:  aa-enforce mysql
@@ -152,8 +152,8 @@ Configure Jungledisk (Optional)
 		Download 64-bit Server Edition Software from this URL:
 		https://www.jungledisk.com/downloads/business/server/linux/
 		
-		Place in /opt/jetendo-server/system/ and run this command to install it.  Make sure the file name matches the file you downloaded.
-		dpkg -i /opt/jetendo-server/system/junglediskserver_316-0_amd64.deb
+		Place in /var/jetendo-server/system/ and run this command to install it.  Make sure the file name matches the file you downloaded.
+		dpkg -i /var/jetendo-server/system/junglediskserver_316-0_amd64.deb
 		
 		Reset the license key on your jungledisk.com account page and replace LICENSE_KEY below with the key they generated for you.
 		vi /etc/jungledisk/junglediskserver-license.xml
@@ -173,9 +173,9 @@ Configure Jetendo CMS
 	Install the jetendo source code from git by running the php script below from the command line.
 	You can edit this file to change the git repo or branch if you want to work on a fork or different branch of the project.  If you intend to contribute to the project, it would be wise to create a fork first.  You can always change your git remote origin later.
 	Note: If you want to run a RELEASE version of Jetendo CMS, skip running this file.
-		php /opt/jetendo/system/install-jetendo.php
+		php /var/jetendo-server/jetendo/system/install-jetendo.php
 		
-	Add the following mappings to the Railo web admin for the /opt/jetendo/ context:
+	Add the following mappings to the Railo web admin for the /var/jetendo-server/jetendo/ context:
 		Railo web admin URL for VirtualBox (create a new password if it asks.)
 		
 		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/web.cfm?action=resources.mappings
@@ -184,20 +184,20 @@ Configure Jetendo CMS
 		For example, if request.zos.adminDomain = "http://jetendo.your-company.com";
 		Then the correct configuration is:
 			Virtual: /zcorecachemapping
-			Resource Path: /opt/jetendo/sites-writable/jetendo_your-company_com/_cache
+			Resource Path: /var/jetendo-server/jetendo/sites-writable/jetendo_your-company_com/_cache
 		
 		Virtual: /zcorerootmapping
-		Resource Path: /opt/jetendo/core
+		Resource Path: /var/jetendo-server/jetendo/core
 		After creating "/zcorerootmapping", click the edit icon and make sure "Top level accessible" is checked and click save.
 		
 		Virtual: /jetendo-themes
-		Resource Path: /opt/jetendo/themes
+		Resource Path: /var/jetendo-server/jetendo/themes
 		
 		Virtual: /jetendo-sites-writable
-		Resource Path: /opt/jetendo/sites-writable
+		Resource Path: /var/jetendo-server/jetendo/sites-writable
 		
 		Virtual: /jetendo-database-upgrade
-		Resource Path: /opt/jetendo/database-upgrade
+		Resource Path: /var/jetendo-server/jetendo/database-upgrade
 	
 	Setup the Jetendo datasource - the database, datasource, jetendo_datasource, and request.zos.zcoreDatasource must all be the same name.
 		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/web.cfm?action=services.datasource
@@ -216,20 +216,20 @@ Configure Jetendo CMS
 				Legacy Datetime Code: true
 
 	Edit the values in the following files to match the configuration of your system.
-		/opt/jetendo/core/config.cfc
-		/opt/jetendo/scripts/jetendo.ini
+		/var/jetendo-server/jetendo/core/config.cfc
+		/var/jetendo-server/jetendo/scripts/jetendo.ini
 	
 	If you want to run a RELEASE version of Jetendo CMS, follow these steps:
-		Download the release file for the "jetendo" project, and unzip its contents to /opt/jetendo in the virtual machine or server.  Make sure that there is no an extra /opt/jetendo/jetendo directory.  The files should be in /opt/jetendo/
-		Download the release file for the "jetendo-default-theme" project and unzip its contents to /opt/jetendo/themes/jetendo-default-theme in the virtual machine or server. Make sure that there is no an extra /opt/jetendo/themes/jetendo-default-theme/jetendo-default-theme directory.  The files should be in /opt/jetendo/themes/jetendo-default-theme
+		Download the release file for the "jetendo" project, and unzip its contents to /var/jetendo-server/jetendo in the virtual machine or server.  Make sure that there is no an extra /var/jetendo-server/jetendo/jetendo directory.  The files should be in /var/jetendo-server/jetendo/
+		Download the release file for the "jetendo-default-theme" project and unzip its contents to /var/jetendo-server/jetendo/themes/jetendo-default-theme in the virtual machine or server. Make sure that there is no an extra /var/jetendo-server/jetendo/themes/jetendo-default-theme/jetendo-default-theme directory.  The files should be in /var/jetendo-server/jetendo/themes/jetendo-default-theme
 		
 		Run this command to install it the release without forcing it to use the git repository:
-			php /opt/jetendo/scripts/install.php disableGitIntegration
+			php /var/jetendo-server/jetendo/scripts/install.php disableGitIntegration
 		Note: the project will not be installed as a git repository, so you will have to manually perform upgrades in the future.
 		
 	If you want to run the DEVELOPMENT version of Jetendo CMS, follow these steps:
 		Run this command to install the Jetendo CMS cron jobs and verify the integrity of the source code.
-			php /opt/jetendo/scripts/install.php
+			php /var/jetendo-server/jetendo/scripts/install.php
 		Any updates since the last time you ran this installation file, will be pulled from github.com.
 		Note: The project will be installed as a git respository.
 		

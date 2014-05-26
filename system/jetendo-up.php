@@ -1,5 +1,7 @@
 <?php
-// this is a placeholder for future automation
+
+echo "Trying to bring jetendo-server up: ".date(DATE_RFC2822)."\n";
+require("library.php");
 
 // start replication
 
@@ -13,6 +15,7 @@
 
 // start monit
 
-// unlink("/opt/jetendo-server/system/jetendo_server_down");
+unlink("/var/jetendo-server/logs/jetendo_server_down");
+updateServerAvailability();
 
 ?>

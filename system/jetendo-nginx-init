@@ -18,8 +18,8 @@
 #               server and it's process state.
 #
 # processname: nginx
-# config:      /opt/nginx/conf/nginx.conf
-# pidfile:     /opt/nginx/logs/nginx.pid
+# config:      /var/jetendo-server/nginx/conf/nginx.conf
+# pidfile:     /var/jetendo-server/nginx/logs/nginx.pid
 # Provides:    nginx
 #
 # Author:  Jason Giedymin
@@ -67,12 +67,12 @@
 #                               Consts
 #------------------------------------------------------------------------------
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
-DAEMON=/opt/nginx/sbin/nginx
+DAEMON=/var/jetendo-server/nginx/sbin/nginx
 
 PS="nginx"
 PIDNAME="nginx"                     #lets you do $PS-slave
 PIDFILE=$PIDNAME.pid                #pid file
-PIDSPATH=/opt/nginx/logs      #default pid location, you should change it
+PIDSPATH=/var/jetendo-server/nginx/logs      #default pid location, you should change it
 
 DESCRIPTION="Nginx Server..."
 
@@ -84,7 +84,7 @@ TRUE=1                              #boolean
 FALSE=0                             #boolean
 
 lockfile=/var/lock/subsys/nginx
-NGINX_CONF_FILE="/opt/nginx/conf/nginx.conf"
+NGINX_CONF_FILE="/var/jetendo-server/nginx/conf/nginx.conf"
 
 #------------------------------------------------------------------------------
 #                               Simple Tests

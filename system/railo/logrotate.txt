@@ -1,0 +1,8 @@
+/var/jetendo-server/railo/tomcat/logs/catalina.out {
+	copytruncate
+	daily
+	rotate 7
+	compress
+	missingok
+	size 5M
+}

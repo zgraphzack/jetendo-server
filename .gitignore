@@ -1,14 +1,18 @@
 *.sublime-*
 jetendo
-config
+config/server-mac-mapping.php
+current-base-image.txt
+config/*/*
+config/*/
 railo/vhosts/*
 mysql/data/*
 mysql/logs/*
 mysql/tmp/*
 system/apr-build/*
 system/nginx-build/*
-system/railo/*
+system/railo/temp/*
 apache/sites/*
+custom-secure-scripts/*
 nginx/sites/*
 system/nginx-conf/sites/*
 php/sites/*
@@ -17,6 +21,9 @@ php/run/*
 php/temp/*
 php/session/*
 system/coldfusion/install/*
+railovhosts
+logs/*
+shared/*
 
 #################
 ## Eclipse
