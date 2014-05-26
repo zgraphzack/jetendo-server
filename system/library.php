@@ -101,6 +101,7 @@ $memoryDumpURL="";
 $environment="";
 $jetendoAdminDomain="";
 $disableKVM=false;
+$isHostServer=false;
 $host="";
 $hostname="";
 $machine=array();
