@@ -31,9 +31,11 @@ Virtualbox initial setup
 		host-php
 		host-apache
 		jetendo
-	Download and mount Ubuntu 12.04 LTS ISO to cdrom on first boot
+	Download and mount Ubuntu 14.04 LTS ISO to cdrom on first boot
 	
 	At Install Prompt, Press F4 (modes) and select Minimal Virtual Machine Install if this is virtual machine
+		make / (root) partition on at least a 3gb drive.
+		setup /var on a large separate drive (20gb+) and one large partition, so that the base file is as small as possible with all variable data on the second drive, which can be cloned and attached to multiple virtual machines.
 		use defaults for all options - except don't encrypt your home directory.
 	The username created during install will not be used later.
 	Don't select any packages when prompted because this is a minimal install and they will be configured with shell afterwards.
@@ -54,14 +56,25 @@ Virtualbox initial setup
 			
 After OS is installed:		
 
+# run this to act as root for a while:
+sudo -i
+
 # change vi default so insert mode is easier to use.  Type these commands:
 	vi /root/.vimrc
 	press i key twice.
 	set nocompatible
+	set backspace=indent,eol,start
 	Press escape key
 	:wq
 	Now vi insert mode is easier to use by just pressing i once.
 
+# disable bash history storage
+	vi /root/.profile
+		unset HISTFILE
+	# and run the command once
+	unset HISTFILE
+	rm /root/.bash_history
+	
 # force grub screen to NOT wait forever for keypress on failed boot:
 	vi /etc/default/grub
 		GRUB_RECORDFAIL_TIMEOUT=2
@@ -109,6 +122,8 @@ After OS is installed:
 			-A ufw-before-input -p tcp --dport 443 -i eth0 -m state --state NEW -m recent --set
 			-A ufw-before-input -p tcp --dport 443 -i eth0 -m state --state NEW -m recent --update --seconds 1 --hitcount 20 -j REJECT
 	service ufw restart
+	
+	ufw enable
 	
 # Enable empty password autologin for root on development server
 	might also need to run

@@ -7,7 +7,12 @@ server-id=100
 lower_case_table_names=1
 datadir		= /var/jetendo-server/mysql/data
 tmpdir		= /tmp
+slow_query_log=on
 slow_query_log_file	= /var/jetendo-server/mysql/data/mariadb-slow.log
+long_query_time = 5
+log_output = TABLE
+expire_logs_days = 30
+
 character-set-server  = utf8 
 collation-server      = utf8_general_ci 
 character_set_server   = utf8 
@@ -56,4 +61,3 @@ innodb_buffer_pool_load_at_startup=1
 #used with mariadb 5.5
 #innodb_blocking_buffer_pool_restore=1
 #innodb_buffer_pool_restore_at_startup=1
-
