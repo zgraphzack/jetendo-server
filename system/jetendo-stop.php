@@ -6,6 +6,10 @@ require("library.php");
 
 file_put_contents("/var/jetendo-server/logs/jetendo_server_down", "1");
 
+if($isHostServer){
+	stopHost($arrVirtualMachine);
+}
+
 // stop railo with the memory dump request
 if(array_key_exists("railo", $arrServiceMap) && $memoryDumpURL != ""){
 	echo "Dumping railo application scope:\n";

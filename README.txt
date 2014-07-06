@@ -475,6 +475,11 @@ Configure Postfix to use Sendgrid.net for relying mail.
 Enable hardware random number generator on non-virtual machine.  This is not safe on a virtual machine.
 	rngd -r /dev/urandom
 	
+	
+manually download the latest 64-bit stable linux version of wkhtmltopdf on the website: http://wkhtmltopdf.org/downloads.html
+	unzip and place the binary files in /usr/local/bin/
+	chmod 755 wkhtmltoimage wkhtmltopdf
+	
 Configure Jungledisk (Optional)
 	This is a recommend solution for remote backup of production servers.
 	

@@ -94,9 +94,24 @@ echo "Update sysctl\n";
 $r=`/sbin/sysctl -p /etc/sysctl.conf`;
 echo $r."\n";
 
+
+createDir(
 echo "Create symbolic links to configuration files\n";
 # symbolic link configuration
 if(array_key_exists("mysql", $arrServiceMap)){
+	if(!is_dir('/var/jetendo-server/mysql')){
+		mkdir('/var/jetendo-server/mysql', 0755);
+	}
+	if(!is_dir('/var/jetendo-server/mysql/data')){
+		mkdir('/var/jetendo-server/mysql/data', 0700);
+		chown('/var/jetendo-server/mysql/data', 'mysql');
+		chgrp('/var/jetendo-server/mysql/data', 'mysql');
+	}
+	if(!is_dir('/var/jetendo-server/mysql/logs')){
+		mkdir('/var/jetendo-server/mysql/logs', 0700);
+		chown('/var/jetendo-server/mysql/logs', 'mysql');
+		chgrp('/var/jetendo-server/mysql/logs', 'mysql');
+	}
 	if(file_exists($configPath."mysql/my.cnf")){
 		$cmd="/bin/ln -sfn ".$configPath."mysql/my.cnf /etc/mysql/conf.d/jetendo.cnf";
 	}else{
@@ -133,6 +148,26 @@ if(array_key_exists("apache", $arrServiceMap)){
 	echo $r."\n";
 }
 if(array_key_exists("php", $arrServiceMap)){
+	if(!is_dir('/var/jetendo-server/php')){
+		mkdir('/var/jetendo-server/php', 0755);
+		chown('/var/jetendo-server/php', 'root');
+		chgrp('/var/jetendo-server/php', 'root');
+	}
+	if(!is_dir('/var/jetendo-server/php/run')){
+		mkdir('/var/jetendo-server/php/run', 0770);
+		chown('/var/jetendo-server/php/run', 'www-data');
+		chgrp('/var/jetendo-server/php/run', 'www-data');
+	}
+	if(!is_dir('/var/jetendo-server/php/session')){
+		mkdir('/var/jetendo-server/php/session', 0770);
+		chown('/var/jetendo-server/php/session', 'www-data');
+		chgrp('/var/jetendo-server/php/session', 'www-data');
+	}
+	if(!is_dir('/var/jetendo-server/php/temp')){
+		mkdir('/var/jetendo-server/php/temp', 0770);
+		chown('/var/jetendo-server/php/temp', 'www-data');
+		chgrp('/var/jetendo-server/php/temp', 'www-data');
+	}
 	if(is_dir($configPath."php/pool")){
 		$cmd="/bin/ln -sfn ".$configPath."php/pool /etc/php5/fpm/pool.d";
 	}else{
@@ -224,6 +259,24 @@ if(array_key_exists("mysql", $arrServiceMap)){
 
 // start railo
 if(array_key_exists("railo", $arrServiceMap)){
+	if(!is_dir('/var/jetendo-server/railovhosts')){
+		mkdir('/var/jetendo-server/railovhosts', 0770);
+		chown('/var/jetendo-server/railovhosts', 'www-data');
+		chgrp('/var/jetendo-server/railovhosts', 'www-data');
+	}
+	if(!is_dir('/var/jetendo-server/railovhosts/server')){
+		mkdir('/var/jetendo-server/railovhosts/server', 0770);
+		chown('/var/jetendo-server/railovhosts/server', 'www-data');
+		chgrp('/var/jetendo-server/railovhosts/server', 'www-data');
+		`/bin/cp -rf /var/jetendo-server/railo/* /var/jetendo-server/railovhosts/server/`;
+		`/bin/chown -R www-data:www-data /var/jetendo-server/railovhosts/server/`;
+		`/bin/chmod -R 770 /var/jetendo-server/railovhosts/server/`;
+	}
+	if(!is_dir('/var/jetendo-server/railovhosts/tomcatlogs')){
+		mkdir('/var/jetendo-server/railovhosts/tomcatlogs', 0770);
+		chown('/var/jetendo-server/railovhosts/tomcatlogs', 'www-data');
+		chgrp('/var/jetendo-server/railovhosts/tomcatlogs', 'www-data');
+	}
 	echo "Start railo\n";
 	$r=`/usr/sbin/service railo_ctl restart`;
 	echo $r."\n";
@@ -303,6 +356,15 @@ if(array_key_exists("postfix", $arrServiceMap)){
 }else{
 	echo $hostname.' has been started. Can\'t send an email because postfix is not enabled.';
 }
+
+
+
+
+if($isHostServer){
+
+	startHost($serverPath, $arrVirtualMachine, $virtualMachineBaseImage);
+}
+
 // done!
 echo "\n===========\n";
 ?>

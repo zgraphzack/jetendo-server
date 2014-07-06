@@ -7,7 +7,6 @@ for($i=0;$i<count($arrMacAddress);$i++){
 	$path="/var/jetendo-server/config/".$arrMacAddress[$i]."/";
 	require($path."config.php");
 	$arrHost=array(
-		"host"=>$host,
 		"hostname"=>$hostname,
 		"isHostServer"=>$isHostServer
 	);
