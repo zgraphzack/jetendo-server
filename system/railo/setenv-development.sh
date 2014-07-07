@@ -9,3 +9,4 @@ JAVA_OPTS="-Xms256m -Xmx512m -Djava.library.path=/usr/local/apr/lib -XX:MaxPermS
 # custom Garbage Collection arguments.
 
 export JAVA_OPTS;
+
