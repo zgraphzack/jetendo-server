@@ -78,13 +78,13 @@ sudo -i
 # force grub screen to NOT wait forever for keypress on failed boot:
 	vi /etc/default/grub
 		GRUB_RECORDFAIL_TIMEOUT=2
-	update-grub
 	
-# force ubuntu to boot after 2 second delay on grub menu
-	vi /etc/grub.d/00_header
-		# put this below ALL the other "set timeout" records in make_timeout
-		set timeout=2
-	upgrade-grub
+	# force ubuntu to boot after 2 second delay on grub menu
+		vi /etc/grub.d/00_header
+			# put this below ALL the other "set timeout" records in make_timeout
+			set timeout=2
+			
+	update-grub
 
 # Initial kernel & OS update
 	sudo apt-get update
@@ -140,7 +140,7 @@ sudo -i
 	
 Log out and login as root using ssh for the rest of the instructions.
 
-# If server is a virtual machine
+# If server is a virtualbox virtual machine
 	apt-get install build-essential module-assistant linux-headers-$(uname -r) dkms
 	apt-get install virtualbox-guest-dkms virtualbox-guest-utils virtualbox-guest-x11
 	m-a prepare
@@ -162,37 +162,27 @@ Log out and login as root using ssh for the rest of the instructions.
 	
 
 # Add the contents of /jetendo-server/system/jetendo-fstab.conf and copy the file to /etc/fstab, then run
-	mkdir /var/jetendo-server/jetendo-server
-	cd /var/jetendo-server/jetendo-server
-	mkdir apache nginx mysql php system railo coldfusion
-	mkdir /var/jetendo-server/jetendo 
-	mkdir /var/jetendo-server/zbackup
+	mkdir /var/jetendo-server/
+	cd /var/jetendo-server/
+	mkdir apache nginx mysql php system railo coldfusion jetendo backup server config custom-secure-scripts logs virtual-machines railovhosts
 	mount -a
 	mount mysql fails until it is installed because user doesn't exist yet.
 	
 Add Prerequisite Repositories
 	apt-get install software-properties-common
 	apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
-	add-apt-repository 'deb http://mirror.jmu.edu/pub/mariadb/repo/10.0/ubuntu trusty main'
+	add-apt-repository 'deb http://ftp.utexas.edu/mariadb/repo/10.0/ubuntu trusty main'
 	
+	apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x4F4EA0AAE5267A6C
 	add-apt-repository ppa:ondrej/php5
 	add-apt-repository ppa:jon-severinsson/ffmpeg
 	add-apt-repository ppa:webupd8team/java
 	apt-get update
 
 Install Required Packages
-	apt-get install apache2 apt-show-versions monit rsyslog ntp cifs-utils mailutils samba fail2ban libsasl2-modules postfix opendkim opendkim-tools oracle-java7-installer p7zip-full handbrake-cli dnsmasq imagemagick ffmpeg git libpcre3-dev libssl-dev build-essential  libpcre3-dev unzip apparmor-utils rng-tools
-	# accept defaults when postfix installer prompts you, i.e. OK, Internet Site
+	apt-get install apache2 apt-show-versions monit rsyslog ntp cifs-utils mailutils samba fail2ban libsasl2-modules postfix opendkim opendkim-tools oracle-java7-installer p7zip-full handbrake-cli dnsmasq imagemagick ffmpeg git libpcre3-dev libssl-dev build-essential  libpcre3-dev unzip apparmor-utils rng-tools php5-fpm php5-cli php5-cgi php5-mysql php5-gd php-apc php5-curl php5-dev php-pear php5-apcu mariadb-server make
 	
-	apt-get install php5-fpm php5-cli php5-cgi php5-mysql php5-gd php-apc php5-curl php5-dev php-pear php5-apcu
-	
-	# MariaDB install results in held packages due to mysql release being newer - it is safe to ignore this.
-	apt-get install mariadb-server
-	
-	# Force usage of mariadb packages
-	apt-get remove php5-mysql rsyslog-mysql
-	apt-get install php5-mysql rsyslog-mysql
-	
+	# accept defaults for all installers - when postfix installer prompts you, i.e. OK, Internet Site
 	# Don't auto-configure database when the rsyslog utility app asks you.
 
 Configure MariaDB
@@ -203,7 +193,7 @@ Configure MariaDB
 	# to begin with a fresh database, run this command to overwrite your mysql/data folder. WARNING:  If you existing mysql data files on your host system already, don't run this command.
 	cp -rf /var/lib/mysql/* /var/jetendo-server/mysql/data/
 	
-	update /etc/mysql/debian.cnf
+	vi /etc/mysql/debian.cnf
 		# add this line under [client] and [mysql_upgrade]
 		protocol=tcp
 		# create user with access to all databases named 'debian-sys-maint' with the same password that is shown in debian.cnf
@@ -237,8 +227,8 @@ Install Required Software From Source
 	Nginx
 		mkdir /var/jetendo-server/system/nginx-build
 		cd /var/jetendo-server/system/nginx-build
-		wget http://nginx.org/download/nginx-1.7.0.tar.gz
-		tar xvfz nginx-1.7.0.tar.gz
+		wget http://nginx.org/download/nginx-1.7.2.tar.gz
+		tar xvfz nginx-1.7.2.tar.gz
 		adduser --system --no-create-home --disabled-login --disabled-password --group nginx
 		
 		Put "sendfile off;" in nginx.conf on test server when using virtualbox shared folders
@@ -252,9 +242,8 @@ Install Required Software From Source
 			unzip master.zip -d /var/jetendo-server/system/nginx-build/
 			rm master.zip
 		
-		cd /var/jetendo-server/system/nginx-build/nginx-1.7.0/
+		cd /var/jetendo-server/system/nginx-build/nginx-1.7.2/
 		./configure --with-http_realip_module  --with-http_spdy_module --prefix=/var/jetendo-server/nginx --user=nginx --group=nginx --with-http_ssl_module --with-http_gzip_static_module  --with-http_flv_module --with-http_mp4_module --with-http_stub_status_module  --add-module=/var/jetendo-server/system/nginx-build/ngx_devel_kit-master --add-module=/var/jetendo-server/system/nginx-build/set-misc-nginx-module-master
-		apt-get install make
 		make
 		make install
 		cd /var/jetendo-server/nginx
@@ -289,7 +278,8 @@ Install Railo
 		./configure --with-apr=/usr/local/apr/bin/ --with-ssl=/usr/include/openssl --with-java-home=/usr/lib/jvm/java-7-oracle && make && make install
 		
 	Install Railo from newest tomcat x64 binary release on www.getrailo.org
-		/var/jetendo-server/system/railo/railo-4.1.2.005-pl0-linux-x64-installer.run
+		chmod 770 /var/jetendo-server/system/railo/railo-4.2.1.000-pl1-linux-x64-installer.run
+		/var/jetendo-server/system/railo/railo-4.2.1.000-pl1-linux-x64-installer.run
 		When it asks for the user to run Railo as, type in: www-data
 		Start railo at boot time: Y
 		Don't allow installation of apache connectors: n
@@ -300,15 +290,22 @@ Install Railo
 		rm -rf /var/jetendo-server/railo/jdk/jre
 		mkdir /var/jetendo-server/railo/jdk/jre
 		/bin/cp -rf /usr/lib/jvm/java-7-oracle/jre/* /var/jetendo-server/railo/jdk/jre
-		chown -R www-data. /var/jetendo-server/railo/jdk/jre
+		chown -R www-data:www-data /var/jetendo-server/railo/
+		chmod -R 770 /var/jetendo-server/railo/
 
 	mkdir /var/jetendo-server/railovhosts/
 	mkdir /var/jetendo-server/railovhosts/server/
 	mkdir /var/jetendo-server/railovhosts/tomcat-logs/
-	cp -rf /var/jetendo-server/system/railo/lib/railo-server /var/jetendo-server/railovhosts/server/
-	chown www-data:www-data /var/jetendo-server/railovhosts/
+	cp -rf /var/jetendo-server/railo/lib/* /var/jetendo-server/railovhosts/server/
+	chown -R www-data:www-data /var/jetendo-server/railovhosts/
+	chmod -R 770 /var/jetendo-server/railovhosts/
 
-
+	railo config backup
+		cp /var/jetendo-server/railo/tomcat/conf/server.xml /var/jetendo-server/system/railo/temp/
+		cp /var/jetendo-server/railo/tomcat/conf/web.xml /var/jetendo-server/system/railo/temp/
+		cp /var/jetendo-server/railo/tomcat/conf/logging.properties /var/jetendo-server/system/railo/temp/
+		cp /var/jetendo-server/railo/tomcat/bin/setenv.sh /var/jetendo-server/system/railo/temp/
+		
 	# install the server.xml for production or development
 		# development
 		cp /var/jetendo-server/system/railo/server-development.xml /var/jetendo-server/railo/tomcat/conf/server.xml
@@ -320,6 +317,8 @@ Install Railo
 		cp /var/jetendo-server/system/railo/web-production.xml /var/jetendo-server/railo/tomcat/conf/web.xml
 		cp /var/jetendo-server/system/railo/logging-production.properties /var/jetendo-server/railo/tomcat/conf/logging.properties
 		cp /var/jetendo-server/system/railo/setenv-production.sh /var/jetendo-server/railo/tomcat/bin/setenv.sh
+		
+		cp /var/jetendo-server/system/railo/temp/setenv.sh /var/jetendo-server/railo/tomcat/bin/setenv.sh
 	
 	service railo_ctl start
 	
@@ -358,6 +357,15 @@ Install Optional Packages If You Want Them:
 
 
 # dev server manually modified files
+	
+Configure the variables in jetendo.ini manually
+	/var/jetendo-server/system/php/jetendo.ini
+	
+Make sure the jetendo.ini symbolic link is created:
+	ln -sfn /var/jetendo-server/system/php/jetendo.ini /etc/php5/mods-available/jetendo.ini
+Enable the php configuration module:
+	php5enmod jetendo
+	service php5-fpm restart
 	
 # development server symbolic link configuration
 	ln -sfn /var/jetendo-server/system/jetendo-mysql-development.cnf /etc/mysql/conf.d/jetendo-mysql-development.cnf
@@ -430,7 +438,7 @@ Configure fail2ban:
 	If you are ever blocked from ssh login, restarting the server or waiting 10 minutes will allow you back in.
 
 Configure Postfix to use Sendgrid.net for relying mail.
-	Edit /etc/aliases,  Find the line for "root" and make it "root: EMAIL_ADDRESS" where EMAIL_ADDRESS is the email address that system & security related emails should be forwarded to.
+	vi /etc/aliases,  Find the line for "root" and make it "root: EMAIL_ADDRESS" where EMAIL_ADDRESS is the email address that system & security related emails should be forwarded to.
 	Then run "newaliases"
 	
 	comment out line starting with "relayhost" in /etc/postfix/main.cf
@@ -477,8 +485,8 @@ Enable hardware random number generator on non-virtual machine.  This is not saf
 	
 	
 manually download the latest 64-bit stable linux version of wkhtmltopdf on the website: http://wkhtmltopdf.org/downloads.html
-	unzip and place the binary files in /usr/local/bin/
-	chmod 755 wkhtmltoimage wkhtmltopdf
+	dpkg -i /root/wkhtmltox-0.12.1_linux-trusty-amd64.deb
+	
 	
 Configure Jungledisk (Optional)
 	This is a recommend solution for remote backup of production servers.
@@ -649,13 +657,6 @@ Configure Jetendo CMS
 		
 	Edit the values in the following files to match the configuration of your system.
 		/var/jetendo-server/jetendo/core/config.cfc
-		/var/jetendo-server/jetendo/scripts/jetendo.ini
-	
-	Make sure the jetendo.ini symbolic link is created:
-		ln -sfn /var/jetendo-server/jetendo/scripts/jetendo.ini /etc/php5/mods-available/jetendo.ini
-	Enable the php configuration module:
-		php5enmod jetendo
-		service php5-fpm restart
 	
 	If you want to run a RELEASE version of Jetendo CMS, follow these steps:
 		Download the release file for the "jetendo" project, and unzip its contents to /var/jetendo-server/jetendo in the virtual machine or server.  Make sure that there is no an extra /var/jetendo-server/jetendo/jetendo directory.  The files should be in /var/jetendo-server/jetendo/

@@ -1,4 +1,9 @@
 <?php
+if(get_cfg_var('jetendo_developer_email_to') == ""){
+	echo "jetendo.ini must be configured and installed for this php script to function.\n";
+	exit;
+}
+
 ini_set('default_socket_timeout', 100);
 $d=realpath(dirname(__FILE__)."/../");
 require($d."/config/server-mac-mapping.php");
@@ -10,44 +15,116 @@ if(!is_dir('/var/jetendo-server/logs/')){
 	mkdir("/var/jetendo-server/logs/", 0700, true);
 }
 function getMachineObject($serverName, $machineName){
-	require("/var/jetendo-server/config/".$serverName."/".$machineName."/config.php");
+	$machine=false;
+	$p="/var/jetendo-server/config/".$serverName."/".$machineName."/config.php";
+	require($p);
+	if(gettype($machine) == "boolean"){
+		echo "machine was not defined in ".$p."\n";
+		exit;
+	}
 	return $machine;
 }
 
-function getRunningMachines(){
-	$arrRunning=array();
-	$cmd="/usr/bin/virsh list | /bin/grep 'running'";
+function getDefinedMachines(){
+	$arrReturn=array();
+	$cmd="/usr/bin/virsh list --all";
 	$r=`$cmd`;
-	$arrMachine=explode("\n", $r);
-	for($i=0;$i<count($arrMachine);$i++){
-		$arr=explode(" ", $arrMachine[$i]);
+	$arrMachine=explode("\n", trim($r));
+	for($i=2;$i<count($arrMachine);$i++){
+		$arr=explode(" ", trim($arrMachine[$i]));
 		$arr2=array();
 		for($n=0;$n<count($arr);$n++){
 			$c=trim($arr[$n]);
-			if($c == ""){
+			if($c != ""){
 				array_push($arr2, $c);
 			}
 		}
+		if(count($arr2) == 4){
+			$arr2[2]=$arr2[2]." ".array_pop($arr2);
+		}
 		if(count($arr2) != 3){
-			echo "Invalid response for virsh list: ".$r."\n";
+			echo $arrMachine[$i]."\n";
+			var_dump($arr2);
+			echo "\nInvalid response for virsh list: ".$r."\n";
 			exit;
 		}else{
-			$arrRunning[trim($arr2[1])]=trim($arr2[0]);
+			$arrReturn[trim($arr2[1])]=array(
+				"state"=>$arr2[2],
+				"id"=>$arr2[0]
+			);
 		}
 	}
-	return $arrRunning;
+	return $arrReturn;
+}
+function waitForMachineShutdown($arrMachineName, $timeoutInSeconds){
+	$shutdownWasGraceful=false;
+	// try to wait for graceful shutdown
+	$time_start=microtime_float();
+	while(true){
+		if(microtime_float()-$time_start > $timeoutInSeconds){
+			break;
+		}
+		$arrDefinedMachines=getDefinedMachines();
+		$shutdownCount=0;
+		for($i=0;$i<count($arrMachineName);$i++){
+			$machineName=$arrMachineName[$i];
+			if($arrDefinedMachines[$machineName]['state'] == "shut off"){
+				$shutdownCount++;
+			}
+		}
+		if($shutdownCount == count($arrMachineName)){
+			$shutdownWasGraceful=true;
+			break;
+		}
+		sleep(1);
+	}
+	if($shutdownWasGraceful == false && $arrDefinedMachines[$machineName]['state'] != "shut off"){
+		// hard poweroff machine
+		$cmd="/usr/bin/virsh destroy ".$machineName." 2>&1";
+		echo $cmd."\n";
+		$r=`$cmd`;
+		echo $r."\n";
+	}
+}
+function shutdownMachine($machineName){
+	$shutdownWasGraceful=false;
+	$arrDefinedMachines=getDefinedMachines();
+	if(isset($arrDefinedMachines[$machineName])){
+		if($arrDefinedMachines[$machineName]['state'] == "running"){
+			// gracefully shutdown machine
+			$cmd="/usr/bin/virsh shutdown ".$machineName." 2>&1";
+			echo $cmd."\n";
+			$r=`$cmd`;
+			echo $r."\n";
+		}
+	}
 }
 
-function swapMachineImage($verify, $base, $newBase, $arrVirtualMachine, $arrRunningMachines){
+function swapMachineImage($base, $newBase, $arrVirtualMachine, $verify){
+	global $machineShutDownTimeoutInSeconds;
 	$r="";
 	// loop machines
-	foreach($arrVirtualMachine as $machinePath){
+	$arrShutdown=array();
+	$arrDefinedMachines=getDefinedMachines();
+	foreach($arrVirtualMachine as $machinePath=>$autoStart){
+		$arrPath=explode("/", $machinePath);
+		$machineName=array_pop($arrPath);
+		$serverName=implode("/", $arrPath);
+		if(isset($arrDefinedMachines[$machineName])){
+			shutdownMachine($machineName);
+			array_push($arrShutdown, $machineName);
+		}
+	}
+	waitForMachineShutdown($arrShutdown, $machineShutDownTimeoutInSeconds);
+
+	foreach($arrVirtualMachine as $machinePath=>$autoStart){
 		$arrPath=explode("/", $machinePath);
 		$machineName=array_pop($arrPath);
 		$serverName=implode("/", $arrPath);
 		$serverPath="/var/jetendo-server/virtual-machines/".$arrPath[0]."/";
+		$serverMachinePath="/var/jetendo-server/virtual-machines/".$serverName."/";
 		if(!is_dir($serverPath)){
-			mkdir($serverPath, 0770);
+			mkdir($serverPath, 0770, true);
 		}
 
 
@@ -55,68 +132,101 @@ function swapMachineImage($verify, $base, $newBase, $arrVirtualMachine, $arrRunn
 			echo "Both ".$serverPath."image1.qed and ".$serverPath."image2.qed exist.  You must manually delete one of them and run this script again. Make sure no running machines are using the file you delete.\n";
 			exit;
 		}
-		$machineImagePath=$serverPath.$machineName.".qed";
-		$imagePath=$serverPath.$newBase.".qed";
 
-		// change image used
-		echo "Generate new xml for ".$machineName."\n";
 		$machine=getMachineObject($serverName, $machineName);
-		$xml=getMachineXML($machine);
-		$xmlPath=$serverPath.$machineName.".xml";
-		file_put_contents($xmlPath, $xml);
-
-		if(!isset($machine['varSize'])){
-			echo "machine must have a key named varSize defined as the number of gigabytes for the /var partition, such as 20G";
+		if(!isset($machine['name'])){
+			var_dump($machine);
+			echo "machine['name'] was undefined for machineName=$machineName and it is required.\n";
 			exit;
 		}
-
+		$xmlPath=$serverMachinePath.$machineName.".xml";
 		if($verify){
-			continue;
+			foreach($machine["drives"] as $drive=>$driveObj){
+				if(isset($driveObj["baseImage"])){
+					$basePath=$driveObj["baseImage"]."-".$newBase;
+					if(file_exists($basePath)){
+						echo "Base image copy already exists and must be manually deleted before this process can continue. Path: ".$driveObj["baseImage"]."-".$newBase."\n";
+						exit;
+					}
+				}
+			}
 		}
 
-		$varImage=$serverPath.$machineName."-var.raw";
-		if(!file_exists($varImage)){
-			$cmd="/usr/bin/qemu-img create -f raw ".escapeshellarg($varImage)." ".escapeshellarg($machine['varSize']);
+		foreach($machine["drives"] as $drive=>$driveObj){
+			if($driveObj["type"] == "cdrom"){
+				if(isset($driveObj["file"])){
+					if(!file_exists($driveObj["file"])){
+						echo "Virtual cdrom media is missing: ".$driveObj["file"]."\n";
+						exit;
+					}else{
+						echo "Virtual media exists: ".$driveObj["file"]."\n";
+					}
+				}
+				continue;
+			}
+			if(isset($driveObj["baseImage"])){
+				$basePath=$driveObj["baseImage"]."-".$newBase;
+				if(!file_exists($basePath)){
+					echo "Copying baseImage\n";
+					$cmd="/bin/cp -f ".escapeshellarg($driveObj["baseImage"])." ".escapeshellarg($basePath);
+					echo $cmd."\n";
+					$r=`$cmd`;
+					echo $r."\n";
+				}
+				// create new qed with $path as the backing file
+				$cmd="/usr/bin/qemu-img create -b ".escapeshellarg($basePath)." -f ".$driveObj["type"]." ".escapeshellarg($driveObj["file"]);
+				echo $cmd."\n";
+				$r=`$cmd`;
+				echo $r."\n";
+			}else{
+				if(!file_exists($driveObj["file"])){
+					echo "Creating missing virtual media: ".$driveObj["file"]."\n";
+					$cmd="/usr/bin/qemu-img create -f ".$driveObj["type"]." ".escapeshellarg($driveObj["file"])." ".escapeshellarg($driveObj['size']);
+					echo $cmd."\n";
+					$r=`$cmd`;
+					echo $r."\n";
+				}else{
+					echo "Virtual media exists: ".$driveObj["file"]."\n";
+				}
+			}
 		}
 
-		if(file_exists($machineImagePath)){
-			unlink($machineImagePath);
-		}
-		// create new qed with $path as the backing file
-		$cmd="/usr/bin/qemu-img create -b ".escapeshellarg($imagePath)." -f qed ".escapeshellarg($machineImagePath);
-		echo $cmd."\n";
-		// $r=`$cmd`;
-		echo $r."\n";
-
-		if(isset($arrRunningMachines[$machineName])){
-			// shutdown machine
-			$cmd="/usr/bin/virsh stop ".$machineName;
+		if(isset($arrDefinedMachines[$machineName])){
+			$cmd="/usr/bin/virsh undefine ".$machineName;
 			echo $cmd."\n";
-			// $r=`$cmd`;
+			$r=`$cmd`;
 			echo $r."\n";
 		}
 
-		$cmd="/usr/bin/virsh undefine ".$xmlPath;
-		echo $cmd."\n";
-		// $r=`$cmd`;
-		echo $r."\n";
+		if($base != $newBase){
+			foreach($machine["drives"] as $drive=>$driveObj){
+				if(isset($driveObj["baseImage"])){
+					$basePath=$driveObj["baseImage"]."-".$base;
+					if(file_exists($basePath)){
+						unlink($basePath);
+					}
+				}
+			}
+		}
+
+		echo "Generate new xml for ".$machineName."\n";
+		$xml=getMachineXML($machine);
+		file_put_contents($xmlPath, $xml);
+		
 		$cmd="/usr/bin/virsh define ".$xmlPath;
 		echo $cmd."\n";
-		// $r=`$cmd`;
+		$r=`$cmd`;
 		echo $r."\n";
 
-
-		$cmd="/usr/bin/virsh start ".$machineName;
-		echo $cmd."\n";
-		// $r=`$cmd`;
-		echo $r."\n";
+		// temporarily disabled autoStart for debugging purposes
+		if(false && $autoStart){
+			$cmd="/usr/bin/virsh start ".$machineName;
+			echo $cmd."\n";
+			$r=`$cmd`;
+			echo $r."\n";
+		}
 	}
-	if($base != $newBase){
-		$cmd="/bin/rm -f ".$base;
-		// $r=`$cmd`;
-		echo $r."\n";
-	}
-	exit;
+	return true;
 }
 
 function getMachineXML($machine){
@@ -124,8 +234,14 @@ function getMachineXML($machine){
 	$xml='<domain type="kvm" id="1">
 	<name>'.$machine['name'].'</name>
 	<os>
-	<type>hvm</type>
-	<boot dev="hd"/>
+	<type>hvm</type>';
+	if(isset($machine['enableNetworkBoot']) && $machine['enableNetworkBoot']){
+		$xml.='<boot dev="network"/>';
+	}
+	if(isset($machine['enableCdromBoot']) && $machine['enableCdromBoot']){
+		$xml.='<boot dev="cdrom"/>';
+	}
+	$xml.='<boot dev="hd"/>
 	</os>
 	<cpu mode="host-passthrough"/>
 	<features>
@@ -167,7 +283,10 @@ function getMachineXML($machine){
 			<source bridge="virbr0"/>
 			<model type="virtio"/>
 		</interface>
-		<graphics type="spice" port="'.$machine['spicePort'].'" autoport="no" listen="127.0.0.1"/>
+		<graphics type="spice" port="'.$machine['spicePort'].'" autoport="no" listen="127.0.0.1">
+		<clipboard copypaste="yes"/>
+		</graphics>
+
 		 <video>
 	      <model type="qxl" vram="32768" heads="1"/>
 	      <address type="pci" domain="0x0000" bus="0x00" slot="0x02" function="0x0"/>
@@ -175,7 +294,13 @@ function getMachineXML($machine){
 	foreach($machine['shared_folders'] as $name=>$folder){
 		// consider using accessmode "passthrough" (lets guest change permissions) or "squashed" (ignores some failures but acts like passthrough)
 		// Mapped doesn't let guest change permissions at all.
-		$xml.='<filesystem type="mount" accessmode="mapped"> 
+		$xml.='<filesystem type="mount" accessmode="';
+		if(isset($folder['securityMode'])){
+			$xml.=$folder['securityMode'];
+		}else{
+			$xml.='mapped';
+		}
+		$xml.='"> 
 		   <source dir="'.$folder['path'].'"/>
 		   <target dir="'.$name.'"/>'."\n";
 			if(isset($folder['readonly']) && $folder['readonly']){
@@ -287,7 +412,7 @@ function checkAvailableServers(){
 	}
 }
 
-function startHost($serverPath, $arrVirtualMachine, $virtualMachineBaseImage){
+function startHost($serverPath, $arrVirtualMachine){
 	$r="";
 	if(!file_exists($serverPath."current-base-image.txt")){
 		file_put_contents($serverPath."current-base-image.txt", "image1.qed");
@@ -298,45 +423,28 @@ function startHost($serverPath, $arrVirtualMachine, $virtualMachineBaseImage){
 	if(!is_dir($path)){
 		mkdir($path, 0770);
 	}
-	if(!file_exists($path.$virtualMachineBaseImage)){
-		echo $path.$virtualMachineBaseImage." is missing and it is required for this script to function.\n";
-		exit;
-	}
-	if(file_exists($serverPath."image1.qed") && file_exists($serverPath."image2.qed")){
-		echo "Both ".$serverPath."image1.qed and ".$serverPath."image2.qed exist.  You must manually delete one of them and run this script again. Make sure no running machines are using the file you delete.\n";
-		exit;
-	}
-	if(!file_exists($serverPath.$base)){
-		$cmd="/bin/cp -f ".escapeshellarg($path.$virtualMachineBaseImage)." ".escapeshellarg($serverPath.$base);
-		echo $cmd."\n";
-		// $r=`$cmd`;
-		echo $r."\n";
-	}
-	$arrRunningMachines=getRunningMachines();
-	$result=swapMachineImage(true, $base, $base, $arrVirtualMachine, $arrRunningMachines);
-
-	if($result){
-		swapMachineImage(false, $base, $base, $arrVirtualMachine, $arrRunningMachines);
-		file_put_contents($serverPath."current-base-image.txt", $newBase);
-	}
+	$arrDefinedMachines=getDefinedMachines();
+	$result=swapMachineImage($base, $base, $arrVirtualMachine, false);
 }
 function stopHost($arrVirtualMachine){
-	$arrRunningMachines=getRunningMachines();
-
+	global $machineShutDownTimeoutInSeconds;
+	$arrShutdown=array();
 	foreach($arrVirtualMachine as $machinePath){
 		$arrPath=explode("/", $machinePath);
 		$machineName=array_pop($arrPath);
 		$serverName=implode("/", $arrPath);
-		if(isset($arrRunningMachines[$machineName])){
-			// shutdown machine
-			$cmd="/usr/bin/virsh stop ".$machineName;
-			echo $cmd."\n";
-			// $r=`$cmd`;
-			echo $r."\n";
+		if(isset($arrDefinedMachines[$machineName])){
+			shutdownMachine($machineName);
+			array_push($arrShutdown, $machineName);
 		}
 	}
+	waitForMachineShutdown($arrShutdown, $machineShutDownTimeoutInSeconds);
 }
 
+
+$rsyncKey="";
+$copyVarDirectory=false;
+$updateVarDirectory=false;
 $isTestProductionServer=false;
 $configPath=getConfigPath();
 $memoryDumpURL="";
@@ -354,7 +462,7 @@ $arrCommand=array();
 echo "Loading configuration: ".$configPath."config.php\n";
 require_once($configPath."config.php");
 
-$arrPath=explode("/", $configPath);
+$arrPath=explode("/", str_replace('/var/jetendo-server/config/', '', $configPath));
 $machineName=array_pop($arrPath);
 $serverName=implode("/", $arrPath);
 $serverPath="/var/jetendo-server/virtual-machines/".$arrPath[0]."/";
@@ -362,10 +470,6 @@ $serverPath="/var/jetendo-server/virtual-machines/".$arrPath[0]."/";
 if(!$isHostServer){
 	if(!$disableKVM && count($machine)==0){
 		dieWithError('You must set the $machine variable in '.$configPath.'config.php.');
-	}
-}else{
-	if(count($arrVirtualMachine) && $virtualMachineBaseImage == ""){
-		dieWithError('You must set the $virtualMachineBaseImage variable to a valid qed image.');
 	}
 }
 if(array_key_exists("railo", $arrServiceMap) && $memoryDumpURL == ""){

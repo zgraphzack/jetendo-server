@@ -107,7 +107,6 @@ max_connections=400
 thread_cache_size=32
 myisam_max_sort_file_size=10G
 
-innodb_additional_mem_pool_size=3M
 innodb_flush_log_at_trx_commit=1
 
 # Important: make sure innodb_buffer_pool_size isn't more then available ram after all other applications are loaded
@@ -123,8 +122,6 @@ innodb_log_file_size	= 50M
 innodb_log_buffer_size	= 8M
 innodb_file_per_table	= 1
 innodb_open_files	= 2000
-innodb_adaptive_flushing_method  = keep_average 
-innodb_flush_neighbor_pages = 0
 innodb_io_capacity	= 5000
 innodb_flush_method	= O_DIRECT
 
@@ -141,7 +138,6 @@ innodb_stats_on_metadata=0
 innodb_data_home_dir = /var/jetendo-server/mysql/logs/
 innodb_log_group_home_dir  = /var/jetendo-server/mysql/logs/
 innodb_data_file_path=ibdata1:50M;ibdata2:50M:autoextend:max:500M
-innodb_doublewrite_file=/var/jetendo-server/mysql/logs/innodb_doublewrite_file.bin
 aria_log_dir_path = /var/jetendo-server/mysql/logs/
 
 # used with mariadb 10

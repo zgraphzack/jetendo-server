@@ -1,35 +1,5 @@
 <?php
-// this is a placeholder for future automation
 /*
-before this script can be used to boot the server, we need to prepare the system by disabling services, removing some of the mounts from fstab
-update-rc.d apache2 disable
-update-rc.d coldfusion disable
-update-rc.d railo_ctl disable
-update-rc.d monit disable
-update-rc.d postfix disable
-update-rc.d dnsmasq disable
-echo "manual" > /etc/init/dnsmasq.override
-echo "manual" > /etc/init/postfix.override
-echo "manual" > /etc/init/monit.override
-echo "manual" > /etc/init/railo_ctl.override
-echo "manual" > /etc/init/coldfusion.override
-echo "manual" > /etc/init/apache2.override
-echo "manual" > /etc/init/php5-fpm.override
-echo "manual" > /etc/init/nginx.override
-echo "manual" > /etc/init/networking.override
-echo "manual" > /etc/init/cron.override
-echo "manual" > /etc/init/ssh.override
-
-Disable all /etc/fstab jetendo-server/jetendo mounts except /var/jetendo-server/system and /var/jetendo-server/config
-
-To install this script to automatically run at boot, you must run these commands:
-	/bin/cp -f /var/jetendo-server/system/jetendo-server /etc/init.d/jetendo-server
-	/bin/chmod 755 /etc/init.d/jetendo-server
-	update-rc.d jetendo-server defaults
-
-on production, make sure you have a copy of the /etc/hosts file stored here:
-	/var/jetendo-server/jetendo/share/hosts
-
 To run this script manually, run this command:
 	/usr/bin/php /var/jetendo-server/system/jetendo-start.php
 
@@ -44,6 +14,10 @@ $cmd="/bin/echo '".$hostname."' > /etc/hostname";
 $r=`$cmd`;
 echo $r."\n";
 
+$cmd="/bin/mount -a";
+$r=`$cmd`;
+echo $r."\n";
+
 // mount partitions - via mount instead of fstab to avoid trouble booting due to kernel upgrades / virtualbox upgrades
 for($i=0;$i<count($arrMount);$i++){
 	$mount=$arrMount[$i];
@@ -55,21 +29,31 @@ for($i=0;$i<count($arrMount);$i++){
 	}
 	if($environment == "production"){
 		echo "Mounting 9p virtio directory: ".$mount['path']."\n";
-		$cmd="/bin/mount -t 9p -o trans=virtio,version=9p2000.L hostshare /tmp/host_files ".$mount['options']." ".$mount['mountName']." ".$mount['path'];
+		$cmd="/bin/mount -t 9p -o ".$mount['options']." ".$mount['mountName']." ".$mount['path']." 2>&1";
+		echo $cmd."\n";
 		$result=`$cmd`;
-		if($result != ""){
+		if($result != "" && strpos($result,  "is already mounted") === false){
 			echo $cmd."\n";
 			dieWithError("Jetendo can't start because the above mount command returned the following information: ".$result."\n");
 		}
 	}else{
 		echo "Mounting vboxsf directory: ".$mount['path']."\n";
-		$cmd="/bin/mount -t vboxsf -o ".$mount['options']." ".$mount['mountName']." ".$mount['path'];
+		$cmd="/bin/mount -t vboxsf -o ".$mount['options']." ".$mount['mountName']." ".$mount['path']." 2>&1";
+		echo $cmd."\n";
 		$result=`$cmd`;
-		if($result != ""){
+		if($result != "" && strpos($result,  "is already mounted") === false){
 			echo $cmd."\n";
 			dieWithError("Jetendo can't start because the above mount command returned the following information: ".$result."\n");
 		}
 	}
+}
+
+if($updateVarDirectory){
+	echo "Updating Var Directory\n";
+	$cmd="/usr/bin/rsync -av --itemize-changes --ignore-existing --exclude='jetendo-server/' /var/jetendo-server/varcopy/ /var/";
+	echo $cmd."\n";
+	$result=`$cmd`;
+	echo $result."\n";
 }
 
 // copy all config files
@@ -95,7 +79,6 @@ $r=`/sbin/sysctl -p /etc/sysctl.conf`;
 echo $r."\n";
 
 
-createDir(
 echo "Create symbolic links to configuration files\n";
 # symbolic link configuration
 if(array_key_exists("mysql", $arrServiceMap)){
@@ -207,33 +190,45 @@ if(array_key_exists("monit", $arrServiceMap)){
 // start services in sequence
 if(array_key_exists("ufw", $arrServiceMap)){
 	echo "Start ufw\n";
-	$r=`/usr/sbin/service ufw restart`;
+	$r=`/usr/sbin/service ufw start`;
 	echo $r."\n";
-	echo "Enable ufw\n";
-	$r=`/bin/echo "y" | /usr/sbin/ufw enable`;
-	echo $r."\n";
+	//echo "Enable ufw\n";
+	//$r=`/bin/echo "y" | /usr/sbin/ufw enable`;
+	//echo $r."\n";
 }
 // service networking
 if(array_key_exists("networking", $arrServiceMap)){
 	echo "Start networking\n";
-	$r=`/usr/sbin/service networking restart`;
+	$r=`/sbin/ifup lo 2>&1`;
+	echo $r."\n";
+	if($r == ""){
+		$r=`/sbin/ifup --exclude=lo -a`;
+		// no longer works in ubuntu 14+
+		//$r=`/usr/sbin/service networking restart`;
+		echo $r."\n";
+	}
+}
+
+if(array_key_exists("fail2ban", $arrServiceMap)){
+	echo "Start fail2ban\n";
+	$r=`/usr/sbin/service fail2ban start`;
 	echo $r."\n";
 }
 if(array_key_exists("ssh", $arrServiceMap)){
 	echo "Start ssh\n";
-	$r=`/usr/sbin/service ssh restart`;
+	$r=`/usr/sbin/service ssh start`;
 	echo $r."\n";
 }
 // start dnsmasq
 if(array_key_exists("dnsmasq", $arrServiceMap)){
 	echo "Start dnsmasq\n";
-	$r=`/usr/sbin/service dnsmasq restart`;
+	$r=`/usr/sbin/service dnsmasq start`;
 	echo $r."\n";
 }
 // start cron
 if(array_key_exists("cron", $arrServiceMap)){
 	echo "Start cron\n";
-	$r=`/usr/sbin/service cron restart`;
+	$r=`/usr/sbin/service cron start`;
 	echo $r."\n";
 }
 // start postfix
@@ -241,7 +236,7 @@ if(array_key_exists("postfix", $arrServiceMap)){
 	echo "Start postfix\n";
 	$r=`/usr/bin/newaliases`;
 	echo $r."\n";
-	$r=`/usr/sbin/service postfix restart`;
+	$r=`/usr/sbin/service postfix start`;
 	echo $r."\n";
 }
 // start php5-fpm
@@ -253,9 +248,12 @@ if(array_key_exists("php", $arrServiceMap)){
 // start mysql
 if(array_key_exists("mysql", $arrServiceMap)){
 	echo "Start mysql\n";
-	$r=`/usr/sbin/service mysql restart`;
+	$r=`/usr/sbin/service mysql start`;
 	echo $r."\n";
 }
+
+
+$jetendoStarted=false;
 
 // start railo
 if(array_key_exists("railo", $arrServiceMap)){
@@ -272,26 +270,31 @@ if(array_key_exists("railo", $arrServiceMap)){
 		`/bin/chown -R www-data:www-data /var/jetendo-server/railovhosts/server/`;
 		`/bin/chmod -R 770 /var/jetendo-server/railovhosts/server/`;
 	}
-	if(!is_dir('/var/jetendo-server/railovhosts/tomcatlogs')){
-		mkdir('/var/jetendo-server/railovhosts/tomcatlogs', 0770);
-		chown('/var/jetendo-server/railovhosts/tomcatlogs', 'www-data');
-		chgrp('/var/jetendo-server/railovhosts/tomcatlogs', 'www-data');
+	if(!is_dir('/var/jetendo-server/railovhosts/tomcat-logs')){
+		mkdir('/var/jetendo-server/railovhosts/tomcat-logs', 0770);
+		chown('/var/jetendo-server/railovhosts/tomcat-logs', 'www-data');
+		chgrp('/var/jetendo-server/railovhosts/tomcat-logs', 'www-data');
 	}
 	echo "Start railo\n";
-	$r=`/usr/sbin/service railo_ctl restart`;
+	$r=`/usr/sbin/service railo_ctl start`;
 	echo $r."\n";
 	// setup logs
 	$cmd="/bin/cp -f ".$currentDir."/railo/logrotate.txt /etc/logrotate.d/tomcat";
 	$r=`$cmd`;
 	echo $r."\n";
 
-	echo "Start jetendo\n";
-	// verify railo's first jetendo request has completed
-	ob_start();
-	require_once("jetendo-status.php");
-	$status=ob_get_clean();
-	if($status !== "1"){
-		dieWithError("Jetendo status check failed.  You need to manually fix Railo / jetendo and then re-run this script.");
+	if(!file_exists("/var/jetendo-server/jetendo/core/config.cfc")){
+		dieWithError("Jetendo CMS is not installed, and can't be started.");
+	}else{
+		echo "Start jetendo\n";
+		// verify railo's first jetendo request has completed
+		ob_start();
+		require_once("jetendo-status.php");
+		$status=ob_get_clean();
+		if($status !== "1"){
+			dieWithError("Jetendo CMS status check failed.  You need to manually fix Railo / Jetendo CMS and then re-run this script.");
+		}
+		$jetendoStarted=true;
 	}
 }
 // check availability of the other servers
@@ -310,14 +313,14 @@ checkAvailableServers();
 // start nginx
 if(array_key_exists("nginx", $arrServiceMap)){
 	echo "Start nginx\n";
-	$r=`/usr/sbin/service nginx restart`;
+	$r=`/usr/sbin/service nginx start`;
 	echo $r."\n";
 }
 
 // start apache
 if(array_key_exists("apache", $arrServiceMap)){
 	echo "Start apache\n";
-	$r=`/usr/sbin/service apache2 restart`;
+	$r=`/usr/sbin/service apache2 start`;
 	echo $r."\n";
 }
 
@@ -325,46 +328,46 @@ if(array_key_exists("apache", $arrServiceMap)){
 // start coldfusion
 if(array_key_exists("coldfusion", $arrServiceMap)){
 	echo "Start coldfusion\n";
-	$r=`/usr/sbin/service coldfusion restart`;
+	$r=`/usr/sbin/service coldfusion start`;
 	echo $r."\n";
 }
 
 
 // start junglediskserver
 if(array_key_exists("junglediskserver", $arrServiceMap)){
-	echo "Start junglediskserver\n";
-	$r=`/usr/sbin/service junglediskserver restart`;
-	echo $r."\n";
+	if(file_exists('/etc/init.d/junglediskserver')){
+		echo "Start junglediskserver\n";
+		$r=`/usr/sbin/service junglediskserver start`;
+		echo $r."\n";
+	}else{
+		echo "Tried to start junglediskserver, but it is not installed.\n";
+	}
 }
 
 // start monit
 if(array_key_exists("monit", $arrServiceMap)){
 	echo "Start monit\n";
-	$r=`/usr/sbin/service monit restart`;
+	$r=`/usr/sbin/service monit start`;
 	echo $r."\n";
 }
 
-if(file_exists($configPath."/jetendo_server_down")){
+if($jetendoStarted && file_exists($configPath."/jetendo_server_down")){
 	unlink($configPath."/jetendo_server_down");
+}
+
+if($isHostServer){
+	startHost($serverPath, $arrVirtualMachine);
 }
 
 if(array_key_exists("postfix", $arrServiceMap)){
 	echo $hostname.' has been started.';
 	$cmd='/bin/echo "'.$hostname.' has been started." | /usr/bin/mailx -s "'.$hostname.' has been started." root@localhost';
+	echo $cmd."\n";
 	$r=`$cmd`;
 	echo $r."\n";
 }else{
-	echo $hostname.' has been started. Can\'t send an email because postfix is not enabled.';
+	echo $hostname.' has been started. Can\'t send a notification email because postfix is not enabled.';
 }
-
-
-
-
-if($isHostServer){
-
-	startHost($serverPath, $arrVirtualMachine, $virtualMachineBaseImage);
-}
-
 // done!
 echo "\n===========\n";
 ?>

@@ -1,5 +1,4 @@
 <?php
-// this is a placeholder for future automation
 // /usr/bin/php /var/jetendo-server/system/jetendo-stop.php
 echo "jetendo-server stopping: ".date(DATE_RFC2822)."\n";
 require("library.php");
@@ -98,13 +97,21 @@ if(array_key_exists("mysql", $arrServiceMap)){
 	echo $r."\n";
 }
 
+if($copyVarDirectory){
+	echo "Copying Var Directory\n";
+	$cmd="/usr/bin/rsync -av --itemize-changes --exclude='jetendo-server/' /var/ /var/jetendo-server/varcopy/";
+	echo $cmd."\n";
+	$result=`$cmd`;
+	echo $result."\n";
+}
+
 if(array_key_exists("postfix", $arrServiceMap)){
 	echo $hostname.' has been stopped.';
 	$cmd='/bin/echo "'.$hostname.' has been stopped." | /usr/bin/mailx -s "'.$hostname.' has been stopped." root@localhost';
 	$r=`$cmd`;
 	echo $r."\n";
 }else{
-	echo $hostname.' has been stopped. Can\'t send an email because postfix is not enabled.';
+	echo $hostname.' has been stopped. Can\'t send a notification email because postfix is not enabled.';
 }
 /*
 // stop postfix
@@ -122,6 +129,8 @@ for($i=0;$i<count($arrMount);$i++){
 	$r=`$cmd`;
 	echo $r."\n";
 }*/
+
+
 echo "\n===========\n";
 
 ?>

@@ -23,6 +23,7 @@
   /var/jetendo-server/mysql/logs/ rw,
   /var/jetendo-server/mysql/logs/** rw,
   /var/jetendo-server/system/jetendo-mysql-production.cnf r,
+  /var/jetendo-server/system/jetendo-mysql-development.cnf r,
   /sys/devices/system/cpu/ r,
   /usr/share/mysql/charsets/Index.xml r,
   /var/jetendo-server/backup/backup/site-archives*/** rw,

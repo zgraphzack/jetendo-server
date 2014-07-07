@@ -1,9 +1,9 @@
 *.sublime-*
 jetendo
 config/server-mac-mapping.php
-current-base-image.txt
 config/*/*
 config/*/
+coldfusion/*
 railo/vhosts/*
 mysql/data/*
 mysql/logs/*

@@ -1,0 +1,46 @@
+; make a copy of this file with the name "jetendo.ini" in the /etc/php5/mods-available directory, and run service php5-fpm reload
+upload_tmp_dir =/var/jetendo-server/jetendo/phptemp
+upload_max_filesize = 2000M
+max_input_time = 18000
+post_max_size = 2000M
+; add to the end for jetendo scripts to work
+jetendo_developer_email_from="server@your-company.com";
+jetendo_developer_email_to="developer@your-company.com";
+jetendo_test_domain=".127.0.0.2.xip.io"; // xip.io is much slower then using your local hosts file or a local dns server, but it works without additional configuration.  Learn more about xip.io: http://xip.io/  - You can also host your own xip daemon using node.js.
+jetendo_mysql_default_host ="127.0.0.1"
+jetendo_mysql_default_user ="mysql_user"
+jetendo_mysql_default_password ="mysql_password"
+jetendo_datasource="jetendo"
+jetendo_test_datasource="jetendo"
+jetendo_test_server_uses_samba="1"
+jetendo_server_uses_samba="0"
+jetendo_company_name="Your Company, Inc"
+jetendo_company_domain="https://www.your-company.com"
+jetendo_company_phone="123-555-1234"
+jetendo_company_upload_password="your_password"
+jetendo_admin_domain="https://jetendo.your-company.com"
+jetendo_test_admin_domain="http://jetendo.your-company.com.127.0.0.2.xip.io"
+jetendo_sites_path="/var/jetendo-server/jetendo/sites/";
+jetendo_sites_writable_path="/var/jetendo-server/jetendo/sites-writable/";
+jetendo_log_path="/var/jetendo-server/jetendo/logs/";
+jetendo_root_path="/var/jetendo-server/jetendo/";
+jetendo_root_private_path="/var/jetendo-server/jetendo/sites-writable/jetendo_your-company_com/";
+jetendo_share_path="/var/jetendo-server/jetendo/share/"
+jetendo_scripts_path="/var/jetendo-server/jetendo/scripts/";
+jetendo_backup_path="/var/jetendo-server/backup/";
+jetendo_nginx_ssl_path="/var/jetendo-server/nginx/ssl/";
+jetendo_www_user="www-data";
+// requires creating a developer account at yelp.com
+jetendo_yelp_consumer_key="";
+jetendo_yelp_consumer_secret = "";
+jetendo_yelp_token = "";
+jetendo_yelp_token_secret = "";
+jetendo_git_clone_url="https://github.com/jetendo/jetendo.git";
+jetendo_git_branch="master";
+jetendo_git_clone_theme_url="https://github.com/jetendo/jetendo-default-theme.git";
+jetendo_git_theme_branch="master";
+jetendo_test_git_integrity_enabled="0";
+jetendo_git_integrity_enabled="0";
+jetendo_rets_config_file="/var/jetendo-server/custom-secure-scripts/retsConfig.php";
+date.timezone ="US/Eastern";
+cgi.fix_pathinfo=0;
