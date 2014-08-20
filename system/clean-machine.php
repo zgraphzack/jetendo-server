@@ -9,6 +9,10 @@
 set_time_limit(300);
 $arrResetCommand=array();
 
+// flush postfix queues
+`/usr/sbin/postfix flush`;
+`/usr/sbin/postsuper -d ALL`;
+
 require("jetendo-stop.php");
 
 if($environment == 'production'){
@@ -32,9 +36,6 @@ for($i=0;$i<count($arrResetCommand);$i++){
 `/usr/sbin/service rsyslog stop`;
 `/usr/sbin/service postfix stop`;
 
-// flush postfix queues
-`/usr/sbin/postfix flush`;
-`/usr/sbin/postsuper -d ALL`;
 
 // remove root email from /etc/aliases
 if(file_exists("/etc/aliases")){

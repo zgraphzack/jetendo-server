@@ -69,6 +69,8 @@
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/var/jetendo-server/nginx/sbin/nginx
 
+
+
 PS="nginx"
 PIDNAME="nginx"                     #lets you do $PS-slave
 PIDFILE=$PIDNAME.pid                #pid file
