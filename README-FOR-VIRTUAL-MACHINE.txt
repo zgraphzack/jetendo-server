@@ -48,7 +48,7 @@ Verify the VirtualBox shared folders are working:
 			Username: root
 		Note: No password is required to login.
 		
-		Note: if SSH login fails, you may have a different NAT ip for your guest virtual machine.  In the VirtualBox guest console window, login as root, and then type "ipconfig" to find the ip address for the eth0 interface.   Then update your virtualbox port forwarding to use that ip instead of 10.0.2.15 and try to login to SSH again.
+		Note: if SSH login fails, you may have a different NAT ip for your guest virtual machine.  In the VirtualBox guest console window, login as root, and then type "ifconfig" to find the ip address for the eth0 interface.   Then update your virtualbox port forwarding to use that ip instead of 10.0.2.15 and try to login to SSH again.
 			
 	Configure SSH Tunneling on your SSH client for the services you want to use:
 		Nginx, Host Ip: 127.0.0.2: Host Port: 80, Guest Ip: 127.0.0.2, Guest Port: 80

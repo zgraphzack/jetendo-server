@@ -173,5 +173,5 @@ echo `/bin/rm -rf /bigemptyfile`;
 
 
 echo "done";
-//`/sbin/poweroff`;
+`/sbin/poweroff`;
 ?>
