@@ -19,6 +19,10 @@ $r=`/usr/bin/git checkout $gitBranch`;
 $status=`/usr/bin/git status`;
 echo("Git status: ".$status."\n");
 
+
+@mkdir("/var/jetendo-server/jetendo/sites", 0777);
+@mkdir("/var/jetendo-server/jetendo/sites-writeable", 0777);
+
 echo "Jetendo core source code has been downloaded and verified.\n\n";
 echo "Please continue installation by following the README instructions for installing Jetendo CMS in the jetendo-server project.\n\n";
 echo "If you need additional assistance, visit: https://www.jetendo.com/\n\n";

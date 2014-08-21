@@ -598,7 +598,7 @@ Configure Jetendo CMS
 		/var/jetendo-server/jetendo/scripts/jetendo.ini
 	
 	Make sure the jetendo.ini symbolic link is created:
-		ln -sfn /var/jetendo-server/jetendo/scripts/jetendo.ini /etc/php5/mods-available/jetendo.ini
+		ln -sfn /var/jetendo-server/jetendo/system/php/jetendo.ini /etc/php5/mods-available/jetendo.ini
 	Enable the php configuration module:
 		php5enmod jetendo
 	

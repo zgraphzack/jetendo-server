@@ -16,6 +16,7 @@ Download Jetendo Server
 
 	You must create and configure jetendo-server/config/server-mac-mapping.php and the related configuration files for the virtual machine within subdirectories of the config directory.  Documentation for this step is currently unavailable.
 
+	Copy jetendo-server/system/php/jetendo.ini.default to jetendo-server/system/php/jetendo.ini
 	You must create and configure jetendo-server/system/php/jetendo.ini before booting the virtual machine the first time.  It defines the global variables used for the php scripts.
 
 	The following empty directories must be created in the jetendo-server directory because they are excluded from the git respository since they contain your data:
@@ -207,6 +208,9 @@ Configure Jetendo CMS
 	You can edit this file to change the git repo or branch if you want to work on a fork or different branch of the project.  If you intend to contribute to the project, it would be wise to create a fork first.  You can always change your git remote origin later.
 	Note: If you want to run a RELEASE version of Jetendo CMS, skip running this file.
 		php /var/jetendo-server/system/install-jetendo.php
+
+		some paths didn't exist on first boot, so we need to restart railo now for it to work:
+			service railo_ctl restart
 		
 	Add the following mappings to the Railo web admin for the /var/jetendo-server/jetendo/ context:
 		Railo web admin URL for VirtualBox (create a new password if it asks.)
@@ -248,9 +252,9 @@ Configure Jetendo CMS
 				TinyInt(1) is bit: false
 				Legacy Datetime Code: true
 
+	copy /var/jetendo-server/jetendo/core/config-default.cfc to /var/jetendo-server/jetendo/core/config.cfc
 	Edit the values in the following files to match the configuration of your system.
 		/var/jetendo-server/jetendo/core/config.cfc
-		/var/jetendo-server/jetendo/scripts/jetendo.ini
 	
 	If you want to run a RELEASE version of Jetendo CMS, follow these steps:
 		Download the release file for the "jetendo" project, and unzip its contents to /var/jetendo-server/jetendo in the virtual machine or server.  Make sure that there is no an extra /var/jetendo-server/jetendo/jetendo directory.  The files should be in /var/jetendo-server/jetendo/
