@@ -20,6 +20,9 @@ if(file_exists($vimPath)){
 $cmd="/bin/echo '".$hostname."' > /etc/hostname";
 $r=`$cmd`;
 echo $r."\n";
+$cmd="/bin/hostname '".$hostname."'";
+$r=`$cmd`;
+echo $r."\n";
 
 $cmd="/bin/mount -a";
 $r=`$cmd`;
