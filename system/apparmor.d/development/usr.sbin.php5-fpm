@@ -33,7 +33,7 @@
   /var/jetendo-server/jetendo/public/a/secure-message.php r,
   /var/jetendo-server/jetendo/public/index.php r,
   /var/jetendo-server/jetendo/public/mls-images-temp/ w,
-  /var/jetendo-server/jetendo/system/jetendo.ini r,
+  /var/jetendo-server/jetendo/system/php/jetendo.ini r,
   /var/jetendo-server/jetendo/share/mls-images-temp/ rw,
   /var/jetendo-server/jetendo/share/mls-images-temp/** rw,
   /var/jetendo-server/jetendo/share/mls-images/ rw,
