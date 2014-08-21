@@ -74,8 +74,10 @@ for($i=0;$i<count($arrCommand);$i++){
 // load apparmor profiles
 echo "Install all apparmor profiles\n";
 if(!is_dir($configPath."/apparmor.d/")){
-	echo "Installed shared apparmor profiles\n";
-	array_push($arrCommand, "/bin/cp -rf ".$currentDir."/apparmor.d/".$environment."/* /etc/apparmor.d/");
+	echo "Installing shared apparmor profiles\n";
+	$cmd="/bin/cp -rf ".$currentDir."/apparmor.d/".$environment."/* /etc/apparmor.d/";
+	$r=`$cmd 2>&1`;
+	echo $r."\n";
 }
 $r=`/sbin/apparmor_parser -r /etc/apparmor.d/`;
 echo $r."\n";
