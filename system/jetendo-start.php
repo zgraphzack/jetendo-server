@@ -10,6 +10,13 @@ require_once("library.php");
 
 $currentDir=dirname(__FILE__);
 
+$vimPath=$configPath.'vimrc';
+if(file_exists($vimPath)){
+	$cmd="/bin/cp $vimPath /root/.vimrc";
+	$r=`$cmd`;
+	echo $r."\n";
+}
+
 $cmd="/bin/echo '".$hostname."' > /etc/hostname";
 $r=`$cmd`;
 echo $r."\n";

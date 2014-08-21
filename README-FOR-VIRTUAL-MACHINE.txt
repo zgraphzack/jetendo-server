@@ -14,6 +14,25 @@ Download Jetendo Server
 	
 	The Jetendo Server project holds most of the configuration required by the virtual machine.
 
+	You must create and configure jetendo-server/config/server-mac-mapping.php and the related configuration files for the virtual machine within subdirectories of the config directory.  Documentation for this step is currently unavailable.
+
+	You must create and configure jetendo-server/system/php/jetendo.ini before booting the virtual machine the first time.  It defines the global variables used for the php scripts.
+
+	The following empty directories must be created in the jetendo-server directory because they are excluded from the git respository since they contain your data:
+		nginx
+		mysql
+		coldfusion
+		system
+		railo
+		php
+		apache
+		jetendo
+		custom-secure-scripts
+		virtual-machines
+		logs
+		backup
+
+
 Configure Virtualbox
 
 Virtualbox initial setup
@@ -39,6 +58,12 @@ Virtualbox initial setup
 		Hard Disk 2: jetendo-swap.vdi
 
 After virtual machine has booted:
+
+	The first time it starts, you'll need to login to the console with root and a blank password.
+
+	SSH has to be manually started if you are unable to connect with SSH on the next step - this may happen if you failed to configure jetendo.ini before starting the machine:  
+		service ssh start
+
 
 Verify the VirtualBox shared folders are working:
 	Open an SSH connection to the guest machine.
@@ -75,6 +100,8 @@ Verify the VirtualBox shared folders are working:
 		6. Verify the shared folder is working by typing: ls -al /var/jetendo-server/system
 		7. If you still have trouble, make sure the path is correct on the host system in the shared folders configuration and that you have a complete copy of the Jetendo Server project available at https://github.com/jetendo/jetendo-server
 
+
+
 Configure MySQL (MariaDB):
 	If you already have database data files installed at /var/jetendo-server/mysql/data through the virtualbox shared folders, skip this step.
 	
@@ -85,13 +112,19 @@ Configure MySQL (MariaDB):
 		/usr/sbin/service mysql restart
 		
 	Then run:
-		cd /var/jetendo-server/mysql/logs/
+		aa-complain mysql
+		# make sure to set a password and write it down - Yes to all questions (i.e. it is ok to remove root access/anonymous users and test database):
 		/usr/bin/mysql_secure_installation --defaults-file=/etc/mysql/my.cnf
-		
-		If you get a permission error, you can temporary set apparmor profile to complain mode with this command:  aa-complain mysql    and then set it back to enforce after completing the install with this command:  aa-enforce mysql
+		aa-enforce mysql
 		
 		Setup a user for mysql system maintenance that has all global privileges to all tables
-			debian-sys-maint@localhost
+			debian-sys-maint@127.0.0.1
+
+			mysql -u root -p
+			#type your password;
+			# run these queries
+			GRANT ALL PRIVILEGES ON *.* TO 'debian-sys-maint'@'127.0.0.1' IDENTIFIED BY 'YOUR_PASSWORD' WITH GRANT OPTION; 
+			FLUSH PRIVILEGES;
 		
 		Update password (in plain text) in this file:
 			/etc/mysql/debian.cnf
