@@ -322,6 +322,8 @@ checkAvailableServers();
 
 $r=`/bin/cp /var/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx`;
 echo $r."\n";
+$cmd="/bin/sed -i 's/\r//' /etc/init.d/nginx";
+$r=`$cmd`;
 $r=`/bin/chmod 755 /etc/init.d/nginx`;
 echo $r."\n";
 $r=`/usr/sbin/update-rc.d -f nginx defaults`;
