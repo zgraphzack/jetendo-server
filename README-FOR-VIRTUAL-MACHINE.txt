@@ -206,7 +206,7 @@ Configure Jetendo CMS
 	Install the jetendo source code from git by running the php script below from the command line.
 	You can edit this file to change the git repo or branch if you want to work on a fork or different branch of the project.  If you intend to contribute to the project, it would be wise to create a fork first.  You can always change your git remote origin later.
 	Note: If you want to run a RELEASE version of Jetendo CMS, skip running this file.
-		php /var/jetendo-server/jetendo/system/install-jetendo.php
+		php /var/jetendo-server/system/install-jetendo.php
 		
 	Add the following mappings to the Railo web admin for the /var/jetendo-server/jetendo/ context:
 		Railo web admin URL for VirtualBox (create a new password if it asks.)
