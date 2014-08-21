@@ -116,7 +116,22 @@ if(array_key_exists("mysql", $arrServiceMap)){
 	echo $r."\n";
 }
 if(array_key_exists("nginx", $arrServiceMap)){
-	$r=`/bin/ln -sfn /var/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx`;
+
+	$r=`/bin/cp /var/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx`;
+	echo $r."\n";
+	$cmd="/bin/sed -i 's/\r//' /etc/init.d/nginx";
+	$r=`$cmd`;
+	$r=`/bin/chmod 755 /etc/init.d/nginx`;
+	echo $r."\n";
+	$r=`/usr/sbin/update-rc.d -f nginx defaults`;
+	echo $r."\n";
+	$r=`mkdir client_body_temp /var/jetendo-server/nginx/fastcgi_temp /var/jetendo-server/nginx/proxy_temp /var/jetendo-server/nginx/scgi_temp /var/jetendo-server/nginx/uwsgi_temp /var/jetendo-server/nginx/ssl`;
+	echo $r."\n";
+	$r=`chown www-data:root /var/jetendo-server/nginx/client_body_temp /var/jetendo-server/nginx/fastcgi_temp /var/jetendo-server/nginx/proxy_temp /var/jetendo-server/nginx/scgi_temp /var/jetendo-server/nginx/uwsgi_temp`;
+	echo $r."\n";
+	$r=`chmod 770 /var/jetendo-server/nginx/client_body_temp /var/jetendo-server/nginx/fastcgi_temp /var/jetendo-server/nginx/proxy_temp /var/jetendo-server/nginx/scgi_temp /var/jetendo-server/nginx/uwsgi_temp`;
+	echo $r."\n";
+	$r=`chmod 400 /var/jetendo-server/nginx/ssl`;
 	echo $r."\n";
 	if(is_dir($configPath."nginx/nginx.conf")){
 		$cmd="/bin/ln -sfn ".$configPath."nginx/nginx.conf /var/jetendo-server/nginx/conf/nginx.conf";
@@ -320,22 +335,6 @@ checkAvailableServers();
 
 // update nginx configuration to match server availability
 
-$r=`/bin/cp /var/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx`;
-echo $r."\n";
-$cmd="/bin/sed -i 's/\r//' /etc/init.d/nginx";
-$r=`$cmd`;
-$r=`/bin/chmod 755 /etc/init.d/nginx`;
-echo $r."\n";
-$r=`/usr/sbin/update-rc.d -f nginx defaults`;
-echo $r."\n";
-$r=`mkdir client_body_temp /var/jetendo-server/nginx/fastcgi_temp /var/jetendo-server/nginx/proxy_temp /var/jetendo-server/nginx/scgi_temp /var/jetendo-server/nginx/uwsgi_temp /var/jetendo-server/nginx/ssl`;
-echo $r."\n";
-$r=`chown www-data:root /var/jetendo-server/nginx/client_body_temp /var/jetendo-server/nginx/fastcgi_temp /var/jetendo-server/nginx/proxy_temp /var/jetendo-server/nginx/scgi_temp /var/jetendo-server/nginx/uwsgi_temp`;
-echo $r."\n";
-$r=`chmod 770 /var/jetendo-server/nginx/client_body_temp /var/jetendo-server/nginx/fastcgi_temp /var/jetendo-server/nginx/proxy_temp /var/jetendo-server/nginx/scgi_temp /var/jetendo-server/nginx/uwsgi_temp`;
-echo $r."\n";
-$r=`chmod 400 /var/jetendo-server/nginx/ssl`;
-echo $r."\n";
 		
 
 // start nginx

@@ -101,7 +101,9 @@ Verify the VirtualBox shared folders are working:
 		6. Verify the shared folder is working by typing: ls -al /var/jetendo-server/system
 		7. If you still have trouble, make sure the path is correct on the host system in the shared folders configuration and that you have a complete copy of the Jetendo Server project available at https://github.com/jetendo/jetendo-server
 
-
+Configure nginx
+	By default, the example nginx configuration will only work for one specific domain.  You need to change the hostmap files and make "server" directives using include files in the /var/jetendo-server/system/nginx-conf/sites/ directory.
+	The hostmap must be the full local domain name, mapped to the directory name on disk.  I.e. jetendo.your-company.com.127.0.0.2 "jetendo_your-company_com";
 
 Configure MySQL (MariaDB):
 	If you already have database data files installed at /var/jetendo-server/mysql/data through the virtualbox shared folders, skip this step.
