@@ -3,7 +3,6 @@
 
 /var/jetendo-server/nginx/sbin/nginx {
   #include <abstractions/base>
-  #include <abstractions/libvirt-qemu>
   #include <abstractions/nameservice>
   #include <abstractions/nis>
 

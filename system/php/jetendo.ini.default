@@ -29,6 +29,7 @@ jetendo_share_path="/var/jetendo-server/jetendo/share/"
 jetendo_scripts_path="/var/jetendo-server/jetendo/scripts/";
 jetendo_backup_path="/var/jetendo-server/backup/";
 jetendo_nginx_ssl_path="/var/jetendo-server/nginx/ssl/";
+jetendo_nginx_sites_config_path="/var/jetendo-server/system/nginx-conf/sites/";
 jetendo_www_user="www-data";
 // requires creating a developer account at yelp.com
 jetendo_yelp_consumer_key="";

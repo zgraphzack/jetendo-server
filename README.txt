@@ -197,6 +197,15 @@ Configure MariaDB
 		# add this line under [client] and [mysql_upgrade]
 		protocol=tcp
 		# create user with access to all databases named 'debian-sys-maint' with the same password that is shown in debian.cnf
+		
+	#fix restart bug in init script for mariadb 10.x - reported here: https://mariadb.atlassian.net/browse/MDEV-6669
+	vi /etc/init.d/mysql
+		
+		# below the line in stop() with "shutdown_out=`$MYADMIN shutdown 2>&1`; r=$?", add the following to force it to wait until shutdown is complete before starting mysql again
+	    for i in `seq 1 600`; do
+		  sleep 1
+		  if mysqld_status check_dead nowarn; then server_down=1; break; fi
+		done
 	
 	disable the /root/.mysql_history file
 	export MYSQL_HISTFILE=/dev/null
@@ -255,8 +264,14 @@ Install Required Software From Source
 		# service is not running until symbolic link and reboot steps are followed below
 
 	add mime-types to /var/jetendo-server/nginx/conf/mime.types
+		
+		application/vnd.ms-fontobject      eot;
 		application/x-font-ttf             ttf;
 		font/opentype                      otf;
+		application/x-font-woff            woff;
+		application/font-woff2            woff2;
+		audio/webm weba;
+		video/webm webm;
 	
 Install Railo
 	Compile and Install Apache APR Library

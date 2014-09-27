@@ -3,7 +3,6 @@
 
 /usr/bin/mysql {
   #include <abstractions/base>
-  #include <abstractions/libvirt-qemu>
   #include <abstractions/nameservice>
 
   capability dac_override,

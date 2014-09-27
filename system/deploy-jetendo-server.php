@@ -25,7 +25,7 @@ if($rsyncKey == ""){
 	exit;
 }
 
-$cmd="/usr/bin/rsync -zrtLv --itemize-changes ".$dryRun." --delete --delay-updates --exclude='/.gitattributes' --exclude='/.gitignore' --exclude='/.git*' --exclude='.git/' --exclude='*/.git*' --exclude='/.git' --exclude='/mysql/' --exclude='/railo/' --exclude='/nginx/' --exclude='/railovhosts/' --exclude='/coldfusion/' --exclude='/apache/' --exclude='/backup/' --exclude='/php/' --exclude='/system/apr-build/' --exclude='/system/nginx-build/' --exclude='/system/railo/temp/' --exclude='/jetendo/' --exclude='/logs/' --exclude='virtual-machines/' -e 'ssh -i ".$rsyncKey."' /var/jetendo-server/ root@phoenix.farbeyondcode.com:/var/jetendo-server/";
+$cmd="/usr/bin/rsync -zrtLv --itemize-changes ".$dryRun." --delete --delay-updates --exclude='/.gitattributes' --exclude='/.gitignore' --exclude='/varcopy/' --exclude='/.git*' --exclude='.git/' --exclude='*/.git*' --exclude='/.git' --exclude='/mysql/' --exclude='/railo/' --exclude='/nginx/' --exclude='/railovhosts/' --exclude='/coldfusion/' --exclude='/apache/' --exclude='/backup/' --exclude='/php/' --exclude='/system/apr-build/' --exclude='/system/nginx-build/' --exclude='/system/php/jetendo.ini' --exclude='/jetendo/core/config.cfc' --exclude='/system/railo/temp/' --exclude='/jetendo/' --exclude='/logs/' --exclude='virtual-machines/' -e 'ssh -i ".$rsyncKey."' /var/jetendo-server/ root@phoenix.farbeyondcode.com:/var/jetendo-server/";
 echo $cmd."\n";
 $result=`$cmd`;
 echo $result."\n";
