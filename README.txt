@@ -191,24 +191,14 @@ Configure MariaDB
 		mount -a
 	
 	# to begin with a fresh database, run this command to overwrite your mysql/data folder. WARNING:  If you existing mysql data files on your host system already, don't run this command.
+	mkdir /var/jetendo-server/mysql/data/
 	cp -rf /var/lib/mysql/* /var/jetendo-server/mysql/data/
-	
-	vi /etc/mysql/debian.cnf
-		# add this line under [client] and [mysql_upgrade]
-		protocol=tcp
-		# create user with access to all databases named 'debian-sys-maint' with the same password that is shown in debian.cnf
-		
-	#fix restart bug in init script for mariadb 10.x - reported here: https://mariadb.atlassian.net/browse/MDEV-6669
-	vi /etc/init.d/mysql
-		
-		# below the line in stop() with "shutdown_out=`$MYADMIN shutdown 2>&1`; r=$?", add the following to force it to wait until shutdown is complete before starting mysql again
-	    for i in `seq 1 600`; do
-		  sleep 1
-		  if mysqld_status check_dead nowarn; then server_down=1; break; fi
-		done
+	chown -R mysql:mysql /var/jetendo-server/mysql/data/
 	
 	disable the /root/.mysql_history file
 	export MYSQL_HISTFILE=/dev/null
+	
+	you must get the password in /etc/mysql/debian.cnf, and create "debian-sys-maint" user with host: localhost AND 127.0.0.1 with global access to all privileges for service mysql restart to work correctly.
 
 # add hosts to system to force dns resolution to work for more loopback ips:
 	vi /etc/hosts
@@ -236,8 +226,8 @@ Install Required Software From Source
 	Nginx
 		mkdir /var/jetendo-server/system/nginx-build
 		cd /var/jetendo-server/system/nginx-build
-		wget http://nginx.org/download/nginx-1.7.2.tar.gz
-		tar xvfz nginx-1.7.2.tar.gz
+		wget http://nginx.org/download/nginx-1.7.7.tar.gz
+		tar xvfz nginx-1.7.7.tar.gz
 		adduser --system --no-create-home --disabled-login --disabled-password --group nginx
 		
 		Put "sendfile off;" in nginx.conf on test server when using virtualbox shared folders
@@ -251,7 +241,7 @@ Install Required Software From Source
 			unzip master.zip -d /var/jetendo-server/system/nginx-build/
 			rm master.zip
 		
-		cd /var/jetendo-server/system/nginx-build/nginx-1.7.2/
+		cd /var/jetendo-server/system/nginx-build/nginx-1.7.7/
 		./configure --with-http_realip_module  --with-http_spdy_module --prefix=/var/jetendo-server/nginx --user=nginx --group=nginx --with-http_ssl_module --with-http_gzip_static_module  --with-http_flv_module --with-http_mp4_module --with-http_stub_status_module  --add-module=/var/jetendo-server/system/nginx-build/ngx_devel_kit-master --add-module=/var/jetendo-server/system/nginx-build/set-misc-nginx-module-master
 		make
 		make install
@@ -272,9 +262,11 @@ Install Required Software From Source
 		application/font-woff2            woff2;
 		audio/webm weba;
 		video/webm webm;
+		
 	
 Install Railo
 	Compile and Install Apache APR Library
+		mkdir /var/jetendo-server/system/apr-build/
 		cd /var/jetendo-server/system/apr-build/
 		# get the newest apr unix gz here: http://apr.apache.org/download.cgi
 		wget http://apache.mirrors.pair.com//apr/apr-1.5.1.tar.gz
@@ -287,14 +279,20 @@ Install Railo
 		export JAVA_HOME
 		cd /var/jetendo-server/system/apr-build/
 		# get the newest tomcat native library source here: http://tomcat.apache.org/download-native.cgi
-		wget http://apache.osuosl.org/tomcat/tomcat-connectors/native/1.1.30/source/tomcat-native-1.1.30-src.tar.gz
-		tar -xvzf tomcat-native-1.1.30-src.tar.gz
-		cd tomcat-native-1.1.30-src/jni/native/
+		wget http://mirror.reverse.net/pub/apache/tomcat/tomcat-connectors/native/1.1.31/source/tomcat-native-1.1.31-src.tar.gz
+		tar -xvzf tomcat-native-1.1.31-src.tar.gz
+		cd tomcat-native-1.1.31-src/jni/native/
 		./configure --with-apr=/usr/local/apr/bin/ --with-ssl=/usr/include/openssl --with-java-home=/usr/lib/jvm/java-7-oracle && make && make install
 		
 	Install Railo from newest tomcat x64 binary release on www.getrailo.org
-		chmod 770 /var/jetendo-server/system/railo/railo-4.2.1.000-pl1-linux-x64-installer.run
-		/var/jetendo-server/system/railo/railo-4.2.1.000-pl1-linux-x64-installer.run
+		mkdir /var/jetendo-server/system/railo/
+		cd /var/jetendo-server/system/railo/
+		download railo linux x64 tomcat from http://www.getrailo.org/ and upload to /var/jetendo-server/system/railo/
+		wget http://www.getrailo.org/down.cfm?item=/railo/remote/download42/4.2.1.008/tomcat/linux/railo-4.2.1.008-pl0-linux-x64-installer.run&thankyou=true
+		mv down tab to railo-4.2.1.008-pl0-linux-x64-installer.run
+		chmod 770 /var/jetendo-server/system/railo/railo-4.2.1.008-pl0-linux-x64-installer.run
+		
+		./railo-4.2.1.008-pl0-linux-x64-installer.run
 		When it asks for the user to run Railo as, type in: www-data
 		Start railo at boot time: Y
 		Don't allow installation of apache connectors: n
@@ -316,6 +314,7 @@ Install Railo
 	chmod -R 770 /var/jetendo-server/railovhosts/
 
 	railo config backup
+		mkdir /var/jetendo-server/system/railo/temp/
 		cp /var/jetendo-server/railo/tomcat/conf/server.xml /var/jetendo-server/system/railo/temp/
 		cp /var/jetendo-server/railo/tomcat/conf/web.xml /var/jetendo-server/system/railo/temp/
 		cp /var/jetendo-server/railo/tomcat/conf/logging.properties /var/jetendo-server/system/railo/temp/
@@ -333,7 +332,6 @@ Install Railo
 		cp /var/jetendo-server/system/railo/logging-production.properties /var/jetendo-server/railo/tomcat/conf/logging.properties
 		cp /var/jetendo-server/system/railo/setenv-production.sh /var/jetendo-server/railo/tomcat/bin/setenv.sh
 		
-		cp /var/jetendo-server/system/railo/temp/setenv.sh /var/jetendo-server/railo/tomcat/bin/setenv.sh
 	
 	service railo_ctl start
 	
@@ -390,6 +388,8 @@ Enable the php configuration module:
 	ln -sfn /var/jetendo-server/system/apache-conf/development-sites-enabled /etc/apache2/sites-enabled
 	ln -sfn /var/jetendo-server/system/php/development-pool /etc/php5/fpm/pool.d
 	
+	
+	
 # production server symbolic link configuration
 	ln -sfn /var/jetendo-server/system/jetendo-mysql-production.cnf /etc/mysql/conf.d/jetendo-mysql-production.cnf
 	ln -sfn /var/jetendo-server/system/nginx-conf/nginx-production.conf /var/jetendo-server/nginx/conf/nginx.conf
@@ -398,6 +398,9 @@ Enable the php configuration module:
 	ln -sfn /var/jetendo-server/system/apache-conf/production-sites-enabled /etc/apache2/sites-enabled
 	ln -sfn /var/jetendo-server/system/php/production-pool /etc/php5/fpm/pool.d
 	
+ln -sfn /var/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx
+/usr/sbin/update-rc.d -f nginx defaults
+
 # enable apparmor profiles:
 	development server:
 		cp -f /var/jetendo-server/system/apparmor.d/development/* /etc/apparmor.d/
@@ -409,7 +412,7 @@ Enable the php configuration module:
 	configure the profiles to be specific to your application by editing them in /etc/apparmor.d/ directly.
 	
 # generate self-signed ssl certs for development
-	cd /var/jetendo-server/system/ssl/
+	cd /var/jetendo-server/nginx/ssl/
 	openssl genrsa -out dev.com.key 2048
 	openssl rsa -in dev.com.key -out dev.com.pem
 	openssl req -new -key dev.com.key -out dev.com.csr
@@ -496,6 +499,8 @@ Configure Postfix to use Sendgrid.net for relying mail.
 Enable hardware random number generator on non-virtual machine.  This is not safe on a virtual machine.
 	rngd -r /dev/urandom
 	
+	on virtual machine use this instead:
+		apt-get install haveged
 	
 manually download the latest 64-bit stable linux version of wkhtmltopdf on the website: http://wkhtmltopdf.org/downloads.html
 	dpkg -i /root/wkhtmltox-0.12.1_linux-trusty-amd64.deb
@@ -640,7 +645,7 @@ Configure Jetendo CMS
 				Legacy Datetime Code: true
 
 	
-	Enable complete null support:
+	Enable complete null support and set dot notation to Keep Original Case (fixes javascript case problems):
 		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/server.cfm?action=server.compiler
 		
 	Enable mail server:

@@ -6,7 +6,11 @@
   #include <abstractions/nameservice>
 
   capability dac_override,
-
+  
+/var/run/mysqld/mysqld.pid rw,
+/var/run/mysqld/mysqld.sock rw,
+  /run/mysqld/mysqld.pid rw,
+  /run/mysqld/mysqld.sock rw,
   /etc/mysql/conf.d/ r,
   /etc/mysql/conf.d/* r,
   /etc/mysql/my.cnf r,
