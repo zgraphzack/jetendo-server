@@ -35,5 +35,8 @@
   /var/jetendo-server/system/nginx-conf/** r,
   /var/jetendo-server/nginx/sites/ r,
   /var/jetendo-server/nginx/sites/** r,
+  /var/jetendo-server/nginx/cache rw,
+  /var/jetendo-server/nginx/cache/ rw,
+  /var/jetendo-server/nginx/cache/** rw,
 
 }

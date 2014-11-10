@@ -70,5 +70,7 @@
   /var/jetendo-server/backup/jetendo/share/** rw,
   /var/jetendo-server/backup/backup/ rw,
   /var/jetendo-server/backup/backup/** rw,
+  /zbackup/backup/ rw,
+  /zbackup/backup/** rw,
 
 }
