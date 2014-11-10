@@ -246,9 +246,9 @@ Install Required Software From Source
 		make
 		make install
 		cd /var/jetendo-server/nginx
-		mkdir client_body_temp fastcgi_temp proxy_temp scgi_temp uwsgi_temp ssl
-		chown www-data:root client_body_temp fastcgi_temp proxy_temp scgi_temp uwsgi_temp
-		chmod 770 client_body_temp fastcgi_temp proxy_temp scgi_temp uwsgi_temp
+		mkdir cache client_body_temp fastcgi_temp proxy_temp scgi_temp uwsgi_temp ssl
+		chown www-data:root cache client_body_temp fastcgi_temp proxy_temp scgi_temp uwsgi_temp
+		chmod 770 cache client_body_temp fastcgi_temp proxy_temp scgi_temp uwsgi_temp
 		chmod 400 ssl
 		
 		# service is not running until symbolic link and reboot steps are followed below
