@@ -11,11 +11,11 @@
   capability sys_resource,
   capability setgid,
   capability setuid,
+  capability chown,
 
   /etc/ssl/openssl.cnf r,
   /var/jetendo-server/jetendo/public/** r,
   /var/jetendo-server/jetendo/share/** r,
-  /var/jetendo-server/system/ssl/* r,
   /var/jetendo-server/jetendo/share/mls-images-temp/** r,
   /var/jetendo-server/jetendo/sites/** r,
   /var/jetendo-server/jetendo/sites-writable/** r,
@@ -38,5 +38,7 @@
   /var/jetendo-server/nginx/cache rw,
   /var/jetendo-server/nginx/cache/ rw,
   /var/jetendo-server/nginx/cache/** rw,
+  /var/jetendo-server/nginx/conf/sites/jetendo/** r,
+  /var/jetendo-server/nginx/html/** r,
 
 }

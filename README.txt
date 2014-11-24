@@ -192,10 +192,12 @@ Configure MariaDB
 	
 	# to begin with a fresh database, run this command to overwrite your mysql/data folder. WARNING:  If you existing mysql data files on your host system already, don't run this command.
 	mkdir /var/jetendo-server/mysql/data/
+	mkdir /var/jetendo-server/mysql/logs/
 	cp -rf /var/lib/mysql/* /var/jetendo-server/mysql/data/
 	chown -R mysql:mysql /var/jetendo-server/mysql/data/
+	chown -R mysql:mysql /var/jetendo-server/mysql/logs/
 	
-	disable the /root/.mysql_history file
+	# disable the /root/.mysql_history file
 	export MYSQL_HISTFILE=/dev/null
 	
 	you must get the password in /etc/mysql/debian.cnf, and create "debian-sys-maint" user with host: localhost AND 127.0.0.1 with global access to all privileges for service mysql restart to work correctly.
@@ -249,19 +251,20 @@ Install Required Software From Source
 		mkdir cache client_body_temp fastcgi_temp proxy_temp scgi_temp uwsgi_temp ssl
 		chown www-data:root cache client_body_temp fastcgi_temp proxy_temp scgi_temp uwsgi_temp
 		chmod 770 cache client_body_temp fastcgi_temp proxy_temp scgi_temp uwsgi_temp
-		chmod 400 ssl
+		chmod -R 400 ssl
+		mkdir /var/jetendo-server/nginx/conf/sites/
+		mkdir /var/jetendo-server/nginx/conf/sites/jetendo/
+		chmod -R 770 /var/jetendo-server/nginx/conf/sites
 		
 		# service is not running until symbolic link and reboot steps are followed below
 
 	add mime-types to /var/jetendo-server/nginx/conf/mime.types
 		
-		application/vnd.ms-fontobject      eot;
+		audio/webm weba;
 		application/x-font-ttf             ttf;
 		font/opentype                      otf;
-		application/x-font-woff            woff;
 		application/font-woff2            woff2;
 		audio/webm weba;
-		video/webm webm;
 		
 	
 Install Railo
@@ -273,15 +276,15 @@ Install Railo
 		tar -xvf apr-1.5.1.tar.gz
 		cd apr-1.5.1
 		./configure
-		make && make install	
+		make && make install
 	Compile and Install Tomcat Native Library
 		JAVA_HOME=/usr/lib/jvm/java-7-oracle
 		export JAVA_HOME
 		cd /var/jetendo-server/system/apr-build/
 		# get the newest tomcat native library source here: http://tomcat.apache.org/download-native.cgi
-		wget http://mirror.reverse.net/pub/apache/tomcat/tomcat-connectors/native/1.1.31/source/tomcat-native-1.1.31-src.tar.gz
-		tar -xvzf tomcat-native-1.1.31-src.tar.gz
-		cd tomcat-native-1.1.31-src/jni/native/
+		wget http://mirror.reverse.net/pub/apache/tomcat/tomcat-connectors/native/1.1.32/source/tomcat-native-1.1.32-src.tar.gz
+		tar -xvzf tomcat-native-1.1.32-src.tar.gz
+		cd tomcat-native-1.1.32-src/jni/native/
 		./configure --with-apr=/usr/local/apr/bin/ --with-ssl=/usr/include/openssl --with-java-home=/usr/lib/jvm/java-7-oracle && make && make install
 		
 	Install Railo from newest tomcat x64 binary release on www.getrailo.org
@@ -294,6 +297,7 @@ Install Railo
 		
 		./railo-4.2.1.008-pl0-linux-x64-installer.run
 		When it asks for the user to run Railo as, type in: www-data
+		Installation Directory /var/jetendo-server/railo
 		Start railo at boot time: Y
 		Don't allow installation of apache connectors: n
 		Remember to write down password for Tomcat/Railo administrator.
@@ -417,6 +421,7 @@ ln -sfn /var/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx
 	openssl rsa -in dev.com.key -out dev.com.pem
 	openssl req -new -key dev.com.key -out dev.com.csr
 	openssl x509 -req -days 3650 -in dev.com.csr -signkey dev.com.key -out dev.com.crt
+	chmod -R 400 /var/jetendo-server/nginx/ssl/
 
 # increase security limits
 	vi /etc/security/limits.conf
@@ -444,12 +449,6 @@ Setup Git options
 	
 Configure fail2ban:
 	change max retry to 5 and ban time to 600 seconds in the /etc/fail2ban/jail.conf
-	 Add ignoreregex to /etc/fail2ban/filter.d/sshd.conf - so the false break-in message is ignored for non-static ips
-		ignoreregex = ^.* reverse mapping checking getaddrinfo .* failed$
-		
-		in /etc/fail2ban/filter.d/sshd.conf - comment out POSSIBLE BREAK-IN ATTEMPT - because it's not able to work right with the ISP
-		# this next line causes failures incorrectly when we are firewalled:
-			#            ^%(__prefix_line)sAddress <HOST> .* POSSIBLE BREAK-IN ATTEMPT!*\s*$
 	service fail2ban restart
 	If you are ever blocked from ssh login, restarting the server or waiting 10 minutes will allow you back in.
 
@@ -510,11 +509,12 @@ Configure Jungledisk (Optional)
 	This is a recommend solution for remote backup of production servers.
 	
 	Install Jungledisk
-		Download 64-bit Server Edition Software from this URL:
-		https://www.jungledisk.com/downloads/business/server/linux/
+		Download 64-bit Server Edition Software from your jungledisk.com account:
+		cd /root/
+		wget https://downloads.jungledisk.com/jungledisk/junglediskserver_316-0_amd64.deb
 		
-		Place in /var/jetendo-server/system/ and run this command to install it.  Make sure the file name matches the file you downloaded.
-		dpkg -i /var/jetendo-server/system/junglediskserver_316-0_amd64.deb
+		# Run this command to install it.  Make sure the file name matches the file you downloaded.
+		dpkg -i /root/junglediskserver_316-0_amd64.deb
 		
 		Reset the license key on your jungledisk.com account page and replace LICENSE_KEY below with the key they generated for you.
 		vi /etc/jungledisk/junglediskserver-license.xml
@@ -572,7 +572,7 @@ Visit http://xip.io/ to understand how this free service helps you create develo
 	http://mydomain.com.127.0.0.1.xip.io/ would attempt to connection to 127.0.0.1 with the host name mydomain.com.127.0.0.1.xip.io. 
 	Jetendo has been designed to support this service by default.
 	
-one listen path for each fastcgi pool.   /etc/php5/fpm/pool.d/dev.com.conf  - but lets symbolic link it to /var/jetendo-server/system/php/fpm-pool-conf/
+By default, this is not needed.  If you want additional pools, add them like this.  one listen path for each fastcgi pool.   /etc/php5/fpm/pool.d/dev.com.conf  - but lets symbolic link it to /var/jetendo-server/system/php/fpm-pool-conf/
 			[dev.com]
 			listen = /var/jetendo-server/php/run/fpm.dev.com.sock
 			listen.owner = www-user
@@ -665,7 +665,7 @@ Configure Jetendo CMS
 			/var/jetendo-server/jetendo/share
 			/var/jetendo-server/jetendo/execute
 			/var/jetendo-server/jetendo/public
-			/var/jetendo-server/railo/vhosts/b180779e6dc8f3bb6a8ea14a604d83d4/temp
+			/var/jetendo-server/railovhosts/1599b2419bcff43008448d60f69f646e/temp
 			/var/jetendo-server/jetendo/sites-writable
 			/var/jetendo-server/jetendo/themes
 			/var/jetendo-server/jetendo/database-upgrade
