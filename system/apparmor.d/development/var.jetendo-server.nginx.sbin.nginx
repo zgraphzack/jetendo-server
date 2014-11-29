@@ -40,5 +40,8 @@
   /var/jetendo-server/nginx/cache/** rw,
   /var/jetendo-server/nginx/conf/sites/jetendo/** r,
   /var/jetendo-server/nginx/html/** r,
+    /run/nginx.pid rw,
+    /run/nginx.pid.oldbin w,
+    /run/php5-fpm.sock rw,
   
 }

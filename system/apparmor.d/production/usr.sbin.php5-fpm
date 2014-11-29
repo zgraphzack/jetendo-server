@@ -55,5 +55,7 @@
   /var/log/php5-fpm.log w,
   /var/jetendo-server/backup/jetendo/share/mls-images/ rw,
   /var/jetendo-server/backup/jetendo/share/mls-images/** rw,
+  /zbackup/jetendo/share/mls-images/ rw,
+  /zbackup/jetendo/share/mls-images/** rw,
 
 }
