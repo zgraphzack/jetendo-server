@@ -85,6 +85,15 @@ sudo -i
 			set timeout=2
 			
 	update-grub
+	
+# vi /etc/init/cron.conf
+	change "exec cron" to "exec cron -L 0"  to stop it from filling syslog with non-error messages.
+	and
+#vi /etc/rsyslog.conf
+	change 
+		*.*;auth,authpriv.none		-/var/log/syslog
+	to
+		*.*;auth,authpriv.none,cron.none		-/var/log/syslog
 
 # Initial kernel & OS update
 	sudo apt-get update
@@ -107,6 +116,9 @@ sudo -i
 	
 	# don't have a static ip? Then allow from any IP (less secure)
 	sudo ufw allow 22/tcp
+	
+	# disable all firewall logging, unless you have concerns
+	ufw logging off
 	
 	# Add connection limiting on a production server
 	
