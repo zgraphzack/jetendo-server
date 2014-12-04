@@ -29,6 +29,7 @@
   /var/jetendo-server/system/jetendo-mysql-development.cnf r,
   /sys/devices/system/cpu/ r,
   /usr/share/mysql/charsets/Index.xml r,
+  /var/jetendo-server/backup/backup/site-archives/** rw,
   /var/jetendo-server/backup/backup/site-archives*/** rw,
   /var/jetendo-server/backup/mysql/** rw,
   /tmp/ rw,

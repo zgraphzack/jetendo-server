@@ -268,6 +268,9 @@ Install Required Software From Source
 		mkdir /var/jetendo-server/nginx/conf/sites/jetendo/
 		chmod -R 770 /var/jetendo-server/nginx/conf/sites
 		
+		# add mysql to www-data group so railo / mysql backups work.
+		usermod -G mysql,www-data mysql
+		
 		# service is not running until symbolic link and reboot steps are followed below
 
 	add mime-types to /var/jetendo-server/nginx/conf/mime.types
