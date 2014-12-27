@@ -192,7 +192,7 @@ Add Prerequisite Repositories
 	apt-get update
 
 Install Required Packages
-	apt-get install apache2 apt-show-versions monit rsyslog ntp cifs-utils mailutils samba fail2ban libsasl2-modules postfix opendkim opendkim-tools oracle-java7-installer p7zip-full handbrake-cli dnsmasq imagemagick ffmpeg git libpcre3-dev libssl-dev build-essential  libpcre3-dev unzip apparmor-utils rng-tools php5-fpm php5-cli php5-cgi php5-mysql php5-gd php-apc php5-curl php5-dev php-pear php5-apcu mariadb-server make dnstools
+	apt-get install apache2 apt-show-versions monit rsyslog ntp cifs-utils mailutils samba fail2ban libsasl2-modules postfix opendkim opendkim-tools oracle-java7-installer p7zip-full handbrake-cli dnsmasq imagemagick ffmpeg git libpcre3-dev libssl-dev build-essential  libpcre3-dev unzip apparmor-utils rng-tools php5-fpm php5-cli php5-cgi php5-mysql php5-gd php-apc php5-curl php5-dev php-pear php5-apcu mariadb-server make dnstools php5-sqlite
 	
 	# accept defaults for all installers - when postfix installer prompts you, i.e. OK, Internet Site
 	# Don't auto-configure database when the rsyslog utility app asks you.
