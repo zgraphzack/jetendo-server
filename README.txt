@@ -189,6 +189,7 @@ Add Prerequisite Repositories
 	add-apt-repository ppa:ondrej/php5
 	add-apt-repository ppa:jon-severinsson/ffmpeg
 	add-apt-repository ppa:webupd8team/java
+	add-apt-repository ppa:stebbins/handbrake-releases
 	apt-get update
 
 Install Required Packages
@@ -254,6 +255,7 @@ Install Required Software From Source
 			wget https://github.com/agentzh/set-misc-nginx-module/archive/master.zip
 			unzip master.zip -d /var/jetendo-server/system/nginx-build/
 			rm master.zip
+			
 		
 		cd /var/jetendo-server/system/nginx-build/nginx-1.7.7/
 		./configure --with-http_realip_module  --with-http_spdy_module --prefix=/var/jetendo-server/nginx --user=nginx --group=nginx --with-http_ssl_module --with-http_gzip_static_module  --with-http_flv_module --with-http_mp4_module --with-http_stub_status_module  --add-module=/var/jetendo-server/system/nginx-build/ngx_devel_kit-master --add-module=/var/jetendo-server/system/nginx-build/set-misc-nginx-module-master
@@ -273,6 +275,8 @@ Install Required Software From Source
 		
 		# service is not running until symbolic link and reboot steps are followed below
 
+		openssl dhparam -out /var/jetendo-server/nginx/ssl/dh2048.pem -outform PEM -2 2048
+		
 	add mime-types to /var/jetendo-server/nginx/conf/mime.types
 		
 		audio/webm weba;
@@ -528,7 +532,8 @@ Enable hardware random number generator on non-virtual machine.  This is not saf
 		apt-get install haveged
 	
 manually download the latest 64-bit stable linux version of wkhtmltopdf on the website: http://wkhtmltopdf.org/downloads.html
-	dpkg -i /root/wkhtmltox-0.12.1_linux-trusty-amd64.deb
+	apt-get install xfonts-base xfonts-75dpi
+	dpkg -i /root/wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
 	
 	
 Configure Jungledisk (Optional)
