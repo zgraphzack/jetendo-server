@@ -1,0 +1,167 @@
+lucee - the tomcat links download pl0 instead of pl1.     can you install beta afterwards?  maybe.
+
+
+Install lucee
+	Compile and Install Apache APR Library
+		mkdir /var/jetendo-server/system/apr-build/
+		cd /var/jetendo-server/system/apr-build/
+		# get the newest apr unix gz here: http://apr.apache.org/download.cgi
+		wget http://apache.mirrors.pair.com//apr/apr-1.5.1.tar.gz
+		tar -xvf apr-1.5.1.tar.gz
+		cd apr-1.5.1
+		./configure
+		make && make install
+	Compile and Install Tomcat Native Library
+		JAVA_HOME=/usr/lib/jvm/java-7-oracle
+		export JAVA_HOME
+		cd /var/jetendo-server/system/apr-build/
+		# get the newest tomcat native library source here: http://tomcat.apache.org/download-native.cgi
+		wget http://mirror.reverse.net/pub/apache/tomcat/tomcat-connectors/native/1.1.32/source/tomcat-native-1.1.32-src.tar.gz
+		tar -xvzf tomcat-native-1.1.32-src.tar.gz
+		cd tomcat-native-1.1.32-src/jni/native/
+		./configure --with-apr=/usr/local/apr/bin/ --with-ssl=/usr/include/openssl --with-java-home=/usr/lib/jvm/java-7-oracle && make && make install
+		
+	Install lucee from newest tomcat x64 binary release on www.lucee.org
+		mkdir /var/jetendo-server/system/lucee/
+		cd /var/jetendo-server/system/lucee/
+		download lucee linux x64 tomcat from http://www.getlucee.org/ and upload to /var/jetendo-server/system/lucee/
+		wget http://www.getlucee.org/down.cfm?item=/lucee/remote/download42/4.2.1.008/tomcat/linux/lucee-4.2.1.008-pl0-linux-x64-installer.run&thankyou=true
+		mv down tab to lucee-4.2.1.008-pl0-linux-x64-installer.run
+		chmod 770 /var/jetendo-server/system/lucee/lucee-4.2.1.008-pl0-linux-x64-installer.run
+		
+		echo manual | sudo tee /etc/init/railo_ctl.override
+		
+		/var/jetendo-server/jetendo/sites/lucee-4.5.1.022-pl1-linux-x64-installer.run
+		
+		./lucee-4.2.1.008-pl0-linux-x64-installer.run
+		When it asks for the user to run lucee as, type in: www-data
+		Installation Directory /var/jetendo-server/lucee
+		Start lucee at boot time: Y
+		Don't allow installation of apache connectors: n
+		Remember to write down password for Tomcat/lucee administrator.
+		
+	Put newest JRE In lucee:
+		service lucee_ctl stop
+		rm -rf /var/jetendo-server/lucee/jdk/jre
+		mkdir /var/jetendo-server/lucee/jdk/jre
+		/bin/cp -rf /usr/lib/jvm/java-7-oracle/jre/* /var/jetendo-server/lucee/jdk/jre
+		chown -R www-data:www-data /var/jetendo-server/lucee/
+		chmod -R 770 /var/jetendo-server/lucee/
+
+	mkdir /var/jetendo-server/luceevhosts/
+	mkdir /var/jetendo-server/luceevhosts/server/
+	mkdir /var/jetendo-server/luceevhosts/tomcat-logs/
+	cp -rf /var/jetendo-server/lucee/lib/* /var/jetendo-server/luceevhosts/server/
+	chown -R www-data:www-data /var/jetendo-server/luceevhosts/
+	chmod -R 770 /var/jetendo-server/luceevhosts/
+
+	lucee config backup
+		mkdir /var/jetendo-server/system/lucee/temp/
+		cp /var/jetendo-server/lucee/tomcat/conf/server.xml /var/jetendo-server/system/lucee/temp/
+		cp /var/jetendo-server/lucee/tomcat/conf/web.xml /var/jetendo-server/system/lucee/temp/
+		cp /var/jetendo-server/lucee/tomcat/conf/logging.properties /var/jetendo-server/system/lucee/temp/
+		cp /var/jetendo-server/lucee/tomcat/bin/setenv.sh /var/jetendo-server/system/lucee/temp/
+		
+	# install the server.xml for production or development
+		# development
+		cp /var/jetendo-server/system/lucee/server-development.xml /var/jetendo-server/lucee/tomcat/conf/server.xml
+		cp /var/jetendo-server/system/lucee/web-development.xml /var/jetendo-server/lucee/tomcat/conf/web.xml
+		cp /var/jetendo-server/system/lucee/logging-development.properties /var/jetendo-server/lucee/tomcat/conf/logging.properties
+		cp /var/jetendo-server/system/lucee/setenv-development.sh /var/jetendo-server/lucee/tomcat/bin/setenv.sh
+		# production
+		cp /var/jetendo-server/system/lucee/server-production.xml /var/jetendo-server/lucee/tomcat/conf/server.xml
+		cp /var/jetendo-server/system/lucee/web-production.xml /var/jetendo-server/lucee/tomcat/conf/web.xml
+		cp /var/jetendo-server/system/lucee/logging-production.properties /var/jetendo-server/lucee/tomcat/conf/logging.properties
+		cp /var/jetendo-server/system/lucee/setenv-production.sh /var/jetendo-server/lucee/tomcat/bin/setenv.sh
+		
+	
+	service lucee_ctl start
+	
+	vi /etc/logrotate.d/tomcat
+	/var/jetendo-server/lucee/tomcat/logs/catalina.out {
+		copytruncate
+		daily
+		rotate 7
+		compress
+		missingok
+		size 5M
+	}
+	
+	vi /etc/logrotate.d/jetendo
+	/var/jetendo-server/jetendo/share/task-log/cfml-tasks.log {
+		su root www-data
+		copytruncate
+		daily
+		rotate 7
+		compress
+		missingok
+		size 5M
+	}
+	
+	
+	http://dev.com.127.0.0.2.xip.io:8888/lucee/admin/web.cfm?action=resources.mappings
+	
+	
+	
+upgrade to lucee 5 notes:
+	https://bitbucket.org/lucee/lucee/wiki/Lucee_5_Upgrading_Railo
+	
+	
+jetendo upgrades:
+
+	objectsave(siteStruct, local.tempPath&'_cache/scripts/appsettings.bin');  might not be working.  need to check.
+	
+	real estate listings aren't able to be viewed, they are redirecting to home
+
+		farbeyondcode multiple file upload - no micha refused my patch
+
+		and html email image embedding - this one is ok still
+
+		try building it from source:
+			https://bitbucket.org/lucee/lucee/wiki/Build_from_source
+			
+				make ant in path.  http://ant.apache.org/manual/index.html
+				
+				cd C:\ServerData\lucee-build
+				set JAVA_HOME=C:\Program Files\Java\jdk1.7.0_25
+				"C:\ServerData\apache-ant-1.9.6\bin\ant"
+				
+				then locate patch file in "dist/"
+					
+		/lucee-java/lucee-core/src/lucee/runtime/Info.ini
+			version will be 5.0.0.9.901
+			
+			
+	C:\ServerData\lucee-build\lucee-java\lucee-core\src\lucee\runtime\type\scope\FormImpl.java
+		line 1: 184: change:
+			fileItems.put(item.getFieldName().toLowerCase(),
+		to:
+			fileItems.put(getFileName(),
+		
+	https://github.com/getrailo/railo/blob/master/railo-java/railo-core/src/railo/runtime/type/scope/FormImpl.java
+		line 163: fileItems.put(item.getFieldName().toLowerCase(),
+		new Item(tempFile,item.getContentType(),item.getName(),item.getFieldName()));
+		I changed it to 
+		fileItems.put(item.getFieldName().toLowerCase()+count,
+		new Item(tempFile,item.getContentType(),item.getName(),item.getFieldName()));
+
+			
+upgrade to lucee 5.0
+	/var/jetendo-server/lucee/lib/ext
+	Copy lucee.jar and org-apache-felix-main-x-x-x.jar (x-x-x stands for a specific version) to "{servlet-engine}/lib/ext"
+	
+	copy the other jars not including above	
+	mkdir /var/jetendo-server/luceevhosts/server/lucee-server/bundles/
+	mkdir /var/jetendo-server/lucee/tomcat/lib/ext/
+	chown -R www-data:www-data /var/jetendo-server/lucee/
+	chown -R www-data:www-data /var/jetendo-server/luceevhosts/
+	chmod -R 770 /var/jetendo-server/lucee/
+	chmod -R 770 /var/jetendo-server/luceevhosts/
+	
+	
+	building lucee 5, you change version in build.properties instead of Info.ini
+	
+	
+backup lucee 5.0
+	cp -rf /var/jetendo-server/lucee/ /var/jetendo-server/jetendo/sites/lucee5backup/
+	cp -rf /var/jetendo-server/luceevhosts/ /var/jetendo-server/jetendo/sites/luceevhosts5backup/
