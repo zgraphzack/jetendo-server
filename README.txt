@@ -187,7 +187,7 @@ Add Prerequisite Repositories
 	
 	apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x4F4EA0AAE5267A6C
 	add-apt-repository ppa:ondrej/php5
-	add-apt-repository ppa:jon-severinsson/ffmpeg
+	sudo add-apt-repository ppa:kirillshkrogalev/ffmpeg-next
 	add-apt-repository ppa:webupd8team/java
 	add-apt-repository ppa:stebbins/handbrake-releases
 	apt-get update
@@ -379,6 +379,17 @@ Install Railo
 		size 5M
 	}
 	
+Install node.js 0.12.x using nodesource PPA
+	apt-get install apt-transport-https
+	wget -qO- https://deb.nodesource.com/setup_0.12 | bash -
+	apt-get install nodejs
+	apt-get install build-essential
+	
+	# install handlebars globally to allow template precompilation
+	npm install handlebars -g
+	
+	node -v
+	handlebars -v
 	
 Install Coldfusion 9.0.2 (Jetendo CMS uses Railo exclusively, Coldfusion installation is optional)
 	apt-get install libstdc++5

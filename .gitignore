@@ -23,6 +23,7 @@ php/session/*
 system/php/jetendo.ini
 system/coldfusion/install/*
 railovhosts
+luceevhosts
 logs/*
 shared/*
 

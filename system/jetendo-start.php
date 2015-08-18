@@ -282,6 +282,49 @@ if(array_key_exists("mysql", $arrServiceMap)){
 
 $jetendoStarted=false;
 
+// start lucee
+if(array_key_exists("lucee", $arrServiceMap)){
+	if(!is_dir('/var/jetendo-server/luceevhosts')){
+		mkdir('/var/jetendo-server/luceevhosts', 0770);
+		chown('/var/jetendo-server/luceevhosts', 'www-data');
+		chgrp('/var/jetendo-server/luceevhosts', 'www-data');
+	}
+	if(!is_dir('/var/jetendo-server/luceevhosts/server')){
+		mkdir('/var/jetendo-server/luceevhosts/server', 0770);
+		chown('/var/jetendo-server/luceevhosts/server', 'www-data');
+		chgrp('/var/jetendo-server/luceevhosts/server', 'www-data');
+		`/bin/cp -rf /var/jetendo-server/lucee/* /var/jetendo-server/luceevhosts/server/`;
+		`/bin/chown -R www-data:www-data /var/jetendo-server/luceevhosts/server/`;
+		`/bin/chmod -R 770 /var/jetendo-server/luceevhosts/server/`;
+	}
+	if(!is_dir('/var/jetendo-server/luceevhosts/tomcat-logs')){
+		mkdir('/var/jetendo-server/luceevhosts/tomcat-logs', 0770);
+		chown('/var/jetendo-server/luceevhosts/tomcat-logs', 'www-data');
+		chgrp('/var/jetendo-server/luceevhosts/tomcat-logs', 'www-data');
+	}
+	echo "Start lucee\n";
+	$r=`/usr/sbin/service lucee_ctl start`;
+	echo $r."\n";
+	// setup logs
+	$cmd="/bin/cp -f ".$currentDir."/lucee/logrotate.txt /etc/logrotate.d/tomcat";
+	$r=`$cmd`;
+	echo $r."\n";
+
+	if(!file_exists("/var/jetendo-server/jetendo/core/config.cfc")){
+		dieWithError("Jetendo CMS is not installed, and can't be started.");
+	}else{
+		echo "Start jetendo\n";
+		// verify lucee's first jetendo request has completed
+		ob_start();
+		require_once("jetendo-status.php");
+		$status=ob_get_clean();
+		if($status !== "1"){
+			dieWithError("Jetendo CMS status check failed.  You need to manually fix Lucee / Jetendo CMS and then re-run this script.");
+		}
+		$jetendoStarted=true;
+	}
+}
+
 // start railo
 if(array_key_exists("railo", $arrServiceMap)){
 	if(!is_dir('/var/jetendo-server/railovhosts')){
