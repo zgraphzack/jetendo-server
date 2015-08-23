@@ -187,7 +187,7 @@ Add Prerequisite Repositories
 	
 	apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x4F4EA0AAE5267A6C
 	add-apt-repository ppa:ondrej/php5
-	sudo add-apt-repository ppa:kirillshkrogalev/ffmpeg-next
+	add-apt-repository ppa:kirillshkrogalev/ffmpeg-next
 	add-apt-repository ppa:webupd8team/java
 	add-apt-repository ppa:stebbins/handbrake-releases
 	apt-get update

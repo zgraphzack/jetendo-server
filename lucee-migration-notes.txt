@@ -124,7 +124,7 @@ jetendo upgrades:
 				
 				cd C:\ServerData\lucee-build
 				set JAVA_HOME=C:\Program Files\Java\jdk1.7.0_25
-				"C:\ServerData\apache-ant-1.9.6\bin\ant"
+				"C:\ServerData\apache-ant-1.9.6\bin\ant" core
 				
 				then locate patch file in "dist/"
 					
@@ -132,20 +132,19 @@ jetendo upgrades:
 			version will be 5.0.0.9.901
 			
 			
+			fix for multiple file uploads:
 	C:\ServerData\lucee-build\lucee-java\lucee-core\src\lucee\runtime\type\scope\FormImpl.java
 		line 1: 184: change:
 			fileItems.put(item.getFieldName().toLowerCase(),
 		to:
 			fileItems.put(getFileName(),
 		
-	https://github.com/getrailo/railo/blob/master/railo-java/railo-core/src/railo/runtime/type/scope/FormImpl.java
-		line 163: fileItems.put(item.getFieldName().toLowerCase(),
-		new Item(tempFile,item.getContentType(),item.getName(),item.getFieldName()));
-		I changed it to 
-		fileItems.put(item.getFieldName().toLowerCase()+count,
-		new Item(tempFile,item.getContentType(),item.getName(),item.getFieldName()));
-
-			
+		fix for objectload/objectsave of functions outside a cfc.
+		C:\ServerData\Lucee4\lucee-java\lucee-core\src\lucee\runtime\type\UDFPropertiesImpl.java
+		out.writeObject(cachedWithin); 
+		cachedWithin = in.readObject();
+		
+		
 upgrade to lucee 5.0
 	/var/jetendo-server/lucee/lib/ext
 	Copy lucee.jar and org-apache-felix-main-x-x-x.jar (x-x-x stands for a specific version) to "{servlet-engine}/lib/ext"
