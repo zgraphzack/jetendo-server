@@ -176,7 +176,7 @@ Log out and login as root using ssh for the rest of the instructions.
 # Add the contents of /jetendo-server/system/jetendo-fstab.conf and copy the file to /etc/fstab, then run
 	mkdir /var/jetendo-server/
 	cd /var/jetendo-server/
-	mkdir apache nginx mysql php system railo coldfusion jetendo backup server config custom-secure-scripts logs virtual-machines railovhosts
+	mkdir apache nginx mysql php system lucee coldfusion jetendo backup server config custom-secure-scripts logs virtual-machines luceevhosts
 	mount -a
 	mount mysql fails until it is installed because user doesn't exist yet.
 	
@@ -270,7 +270,7 @@ Install Required Software From Source
 		mkdir /var/jetendo-server/nginx/conf/sites/jetendo/
 		chmod -R 770 /var/jetendo-server/nginx/conf/sites
 		
-		# add mysql to www-data group so railo / mysql backups work.
+		# add mysql to www-data group so lucee / mysql backups work.
 		usermod -G mysql,www-data mysql
 		
 		# service is not running until symbolic link and reboot steps are followed below
@@ -286,14 +286,14 @@ Install Required Software From Source
 		audio/webm weba;
 		
 	
-Install Railo
+Install lucee
 	Compile and Install Apache APR Library
 		mkdir /var/jetendo-server/system/apr-build/
 		cd /var/jetendo-server/system/apr-build/
 		# get the newest apr unix gz here: http://apr.apache.org/download.cgi
-		wget http://apache.mirrors.pair.com//apr/apr-1.5.1.tar.gz
-		tar -xvf apr-1.5.1.tar.gz
-		cd apr-1.5.1
+		wget http://apache.mirrors.pair.com//apr/apr-1.5.2.tar.gz
+		tar -xvf apr-1.5.2.tar.gz
+		cd apr-1.5.2
 		./configure
 		make && make install
 	Compile and Install Tomcat Native Library
@@ -301,65 +301,75 @@ Install Railo
 		export JAVA_HOME
 		cd /var/jetendo-server/system/apr-build/
 		# get the newest tomcat native library source here: http://tomcat.apache.org/download-native.cgi
-		wget http://mirror.reverse.net/pub/apache/tomcat/tomcat-connectors/native/1.1.32/source/tomcat-native-1.1.32-src.tar.gz
-		tar -xvzf tomcat-native-1.1.32-src.tar.gz
-		cd tomcat-native-1.1.32-src/jni/native/
+		wget http://mirrors.advancedhosters.com/apache/tomcat/tomcat-connectors/native/1.1.33/source/tomcat-native-1.1.33-src.tar.gz
+		tar -xvzf tomcat-native-1.1.33-src.tar.gz
+		cd tomcat-native-1.1.33-src/jni/native/
 		./configure --with-apr=/usr/local/apr/bin/ --with-ssl=/usr/include/openssl --with-java-home=/usr/lib/jvm/java-7-oracle && make && make install
 		
-	Install Railo from newest tomcat x64 binary release on www.getrailo.org
-		mkdir /var/jetendo-server/system/railo/
-		cd /var/jetendo-server/system/railo/
-		download railo linux x64 tomcat from http://www.getrailo.org/ and upload to /var/jetendo-server/system/railo/
-		wget http://www.getrailo.org/down.cfm?item=/railo/remote/download42/4.2.1.008/tomcat/linux/railo-4.2.1.008-pl0-linux-x64-installer.run&thankyou=true
-		mv down tab to railo-4.2.1.008-pl0-linux-x64-installer.run
-		chmod 770 /var/jetendo-server/system/railo/railo-4.2.1.008-pl0-linux-x64-installer.run
+	Install lucee from newest tomcat x64 binary release on www.lucee.org
+		mkdir /var/jetendo-server/system/lucee/
+		cd /var/jetendo-server/system/lucee/
+		download lucee linux x64 tomcat from http://www.getlucee.org/ and upload to /var/jetendo-server/system/lucee/
+		wget http://www.getlucee.org/down.cfm?item=/lucee/remote/download42/4.2.1.008/tomcat/linux/lucee-4.2.1.008-pl0-linux-x64-installer.run&thankyou=true
+		mv down tab to lucee-4.2.1.008-pl0-linux-x64-installer.run
+		chmod 770 /var/jetendo-server/system/lucee/lucee-4.2.1.008-pl0-linux-x64-installer.run
 		
-		./railo-4.2.1.008-pl0-linux-x64-installer.run
-		When it asks for the user to run Railo as, type in: www-data
-		Installation Directory /var/jetendo-server/railo
-		Start railo at boot time: Y
-		Don't allow installation of apache connectors: n
-		Remember to write down password for Tomcat/Railo administrator.
-		
-	Put newest JRE In Railo:
+		#shutdown and disable railo if it is installed.
 		service railo_ctl stop
-		rm -rf /var/jetendo-server/railo/jdk/jre
-		mkdir /var/jetendo-server/railo/jdk/jre
-		/bin/cp -rf /usr/lib/jvm/java-7-oracle/jre/* /var/jetendo-server/railo/jdk/jre
-		chown -R www-data:www-data /var/jetendo-server/railo/
-		chmod -R 770 /var/jetendo-server/railo/
+		echo manual | sudo tee /etc/init/railo_ctl.override
+		
+		/var/jetendo-server/jetendo/sites/lucee-4.5.1.022-pl1-linux-x64-installer.run
+		
+		./lucee-4.5.1.022-pl1-linux-x64-installer.run
+		When it asks for the user to run lucee as, type in: www-data
+		Installation Directory /var/jetendo-server/lucee
+		Start lucee at boot time: Y
+		Don't allow installation of apache connectors: n
+		Remember to write down password for Tomcat/lucee administrator.
+		
+	/var/jetendo-server/lucee/tomcat/bin/setenv.sh
+	# adjust Xmx high as you can afford, but at least 512m is necessary
+		CATALINA_OPTS="-server -Dsun.io.useCanonCaches=false -Xms512m -Xmx1024m -javaagent:lib/lucee-inst.jar  -Djava.library.path=/usr/local/apr/lib -XX:+OptimizeStringConcat -XX:+UseTLAB -XX:+UseBiasedLocking -Xverify:none -XX:+UseThreadPriorities  -XX:+UseFastAccessorMethods -XX:-UseLargePages -XX:+UseCompressedOops";
+		
+	Put newest JRE In lucee:
+		service lucee_ctl stop
+		rm -rf /var/jetendo-server/lucee/jdk/jre
+		mkdir /var/jetendo-server/lucee/jdk/jre
+		/bin/cp -rf /usr/lib/jvm/java-7-oracle/jre/* /var/jetendo-server/lucee/jdk/jre
+		chown -R www-data:www-data /var/jetendo-server/lucee/
+		chmod -R 770 /var/jetendo-server/lucee/
 
-	mkdir /var/jetendo-server/railovhosts/
-	mkdir /var/jetendo-server/railovhosts/server/
-	mkdir /var/jetendo-server/railovhosts/tomcat-logs/
-	cp -rf /var/jetendo-server/railo/lib/* /var/jetendo-server/railovhosts/server/
-	chown -R www-data:www-data /var/jetendo-server/railovhosts/
-	chmod -R 770 /var/jetendo-server/railovhosts/
+	mkdir /var/jetendo-server/luceevhosts/
+	mkdir /var/jetendo-server/luceevhosts/server/
+	mkdir /var/jetendo-server/luceevhosts/tomcat-logs/
+	cp -rf /var/jetendo-server/lucee/lib/* /var/jetendo-server/luceevhosts/server/
+	chown -R www-data:www-data /var/jetendo-server/luceevhosts/
+	chmod -R 770 /var/jetendo-server/luceevhosts/
 
-	railo config backup
-		mkdir /var/jetendo-server/system/railo/temp/
-		cp /var/jetendo-server/railo/tomcat/conf/server.xml /var/jetendo-server/system/railo/temp/
-		cp /var/jetendo-server/railo/tomcat/conf/web.xml /var/jetendo-server/system/railo/temp/
-		cp /var/jetendo-server/railo/tomcat/conf/logging.properties /var/jetendo-server/system/railo/temp/
-		cp /var/jetendo-server/railo/tomcat/bin/setenv.sh /var/jetendo-server/system/railo/temp/
+	lucee config backup
+		mkdir /var/jetendo-server/system/lucee/temp/
+		cp /var/jetendo-server/lucee/tomcat/conf/server.xml /var/jetendo-server/system/lucee/temp/
+		cp /var/jetendo-server/lucee/tomcat/conf/web.xml /var/jetendo-server/system/lucee/temp/
+		cp /var/jetendo-server/lucee/tomcat/conf/logging.properties /var/jetendo-server/system/lucee/temp/
+		cp /var/jetendo-server/lucee/tomcat/bin/setenv.sh /var/jetendo-server/system/lucee/temp/
 		
 	# install the server.xml for production or development
 		# development
-		cp /var/jetendo-server/system/railo/server-development.xml /var/jetendo-server/railo/tomcat/conf/server.xml
-		cp /var/jetendo-server/system/railo/web-development.xml /var/jetendo-server/railo/tomcat/conf/web.xml
-		cp /var/jetendo-server/system/railo/logging-development.properties /var/jetendo-server/railo/tomcat/conf/logging.properties
-		cp /var/jetendo-server/system/railo/setenv-development.sh /var/jetendo-server/railo/tomcat/bin/setenv.sh
+		cp /var/jetendo-server/system/lucee/server-development.xml /var/jetendo-server/lucee/tomcat/conf/server.xml
+		cp /var/jetendo-server/system/lucee/web-development.xml /var/jetendo-server/lucee/tomcat/conf/web.xml
+		cp /var/jetendo-server/system/lucee/logging-development.properties /var/jetendo-server/lucee/tomcat/conf/logging.properties
+		cp /var/jetendo-server/system/lucee/setenv-development.sh /var/jetendo-server/lucee/tomcat/bin/setenv.sh
 		# production
-		cp /var/jetendo-server/system/railo/server-production.xml /var/jetendo-server/railo/tomcat/conf/server.xml
-		cp /var/jetendo-server/system/railo/web-production.xml /var/jetendo-server/railo/tomcat/conf/web.xml
-		cp /var/jetendo-server/system/railo/logging-production.properties /var/jetendo-server/railo/tomcat/conf/logging.properties
-		cp /var/jetendo-server/system/railo/setenv-production.sh /var/jetendo-server/railo/tomcat/bin/setenv.sh
+		cp /var/jetendo-server/system/lucee/server-production.xml /var/jetendo-server/lucee/tomcat/conf/server.xml
+		cp /var/jetendo-server/system/lucee/web-production.xml /var/jetendo-server/lucee/tomcat/conf/web.xml
+		cp /var/jetendo-server/system/lucee/logging-production.properties /var/jetendo-server/lucee/tomcat/conf/logging.properties
+		cp /var/jetendo-server/system/lucee/setenv-production.sh /var/jetendo-server/lucee/tomcat/bin/setenv.sh
 		
 	
-	service railo_ctl start
+	service lucee_ctl start
 	
 	vi /etc/logrotate.d/tomcat
-	/var/jetendo-server/railo/tomcat/logs/catalina.out {
+	/var/jetendo-server/lucee/tomcat/logs/catalina.out {
 		copytruncate
 		daily
 		rotate 7
@@ -378,6 +388,39 @@ Install Railo
 		missingok
 		size 5M
 	}
+	
+	
+	http://dev.com.127.0.0.2.xip.io:8888/lucee/admin/web.cfm?action=resources.mappings
+	
+	
+	Lucee has been patched in order to fix some things.  Here are the notes to re-create the patch until there is an official fix.
+			learn how to build and deploy a patched version of lucee from source before making any changes:
+				https://bitbucket.org/lucee/lucee/wiki/Build_from_source
+				
+			Edit version to be higher then what you're using:
+			/lucee-java/lucee-core/src/lucee/runtime/Info.ini 
+		
+			farbeyondcode multiple file upload - no micha refused my patch
+				
+		fix for multiple file uploads:
+			C:\ServerData\lucee-build\lucee-java\lucee-core\src\lucee\runtime\type\scope\FormImpl.java
+			line 1: 184: change:
+				fileItems.put(item.getFieldName().toLowerCase(),
+			to:
+				fileItems.put(getFileName(),
+			
+		fix for objectload/objectsave of functions outside a cfc.
+			C:\ServerData\Lucee4\lucee-java\lucee-core\src\lucee\runtime\type\UDFPropertiesImpl.java
+			out.writeObject(cachedWithin); 
+			cachedWithin = in.readObject();
+	
+		make ant in path or use the commands below in command prompt.  http://ant.apache.org/manual/index.html
+			
+			cd C:\ServerData\lucee-build
+			set JAVA_HOME=C:\Program Files\Java\jdk1.7.0_25
+			"C:\ServerData\apache-ant-1.9.6\bin\ant" core
+			
+			then locate patch file in "dist/"
 	
 Install node.js 0.12.x using nodesource PPA
 	apt-get install apt-transport-https
