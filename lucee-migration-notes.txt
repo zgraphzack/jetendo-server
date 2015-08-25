@@ -10,36 +10,6 @@ jetendo upgrades:
 	
 	real estate listings aren't able to be viewed, they are redirecting to home
 
-		farbeyondcode multiple file upload - no micha refused my patch
-
-		and html email image embedding - this one is ok still
-
-		try building it from source:
-			https://bitbucket.org/lucee/lucee/wiki/Build_from_source
-			
-				make ant in path.  http://ant.apache.org/manual/index.html
-				
-				cd C:\ServerData\lucee-build
-				set JAVA_HOME=C:\Program Files\Java\jdk1.7.0_25
-				"C:\ServerData\apache-ant-1.9.6\bin\ant" core
-				
-				then locate patch file in "dist/"
-					
-		/lucee-java/lucee-core/src/lucee/runtime/Info.ini
-			version will be 5.0.0.9.901
-			
-			
-			fix for multiple file uploads:
-	C:\ServerData\lucee-build\lucee-java\lucee-core\src\lucee\runtime\type\scope\FormImpl.java
-		line 1: 184: change:
-			fileItems.put(item.getFieldName().toLowerCase(),
-		to:
-			fileItems.put(getFileName(),
-		
-		fix for objectload/objectsave of functions outside a cfc.
-		C:\ServerData\Lucee4\lucee-java\lucee-core\src\lucee\runtime\type\UDFPropertiesImpl.java
-		out.writeObject(cachedWithin); 
-		cachedWithin = in.readObject();
 		
 		
 upgrade to lucee 5.0
