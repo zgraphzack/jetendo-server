@@ -416,7 +416,8 @@ Install lucee
 	
 		make ant in path or use the commands below in command prompt.  http://ant.apache.org/manual/index.html
 			
-			cd C:\ServerData\lucee-build
+			# where Lucee4 is the java github project for current version of Lucee
+			cd C:\ServerData\Lucee4
 			set JAVA_HOME=C:\Program Files\Java\jdk1.7.0_25
 			"C:\ServerData\apache-ant-1.9.6\bin\ant" core
 			
