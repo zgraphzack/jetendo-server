@@ -133,6 +133,18 @@ sudo -i
 			-A ufw-before-input -p tcp --dport 80 -i eth0 -m state --state NEW -m recent --update --seconds 1 --hitcount 20 -j REJECT
 			-A ufw-before-input -p tcp --dport 443 -i eth0 -m state --state NEW -m recent --set
 			-A ufw-before-input -p tcp --dport 443 -i eth0 -m state --state NEW -m recent --update --seconds 1 --hitcount 20 -j REJECT
+			
+			
+			# jetendo - block invalid tcp commands
+			-A ufw-before-input -p TCP --tcp-flags ALL FIN,URG,PSH -j DROP
+			-A ufw-before-input -p TCP --tcp-flags ALL SYN,RST,ACK,FIN,URG -j DROP
+			-A ufw-before-input -p TCP --tcp-flags SYN,RST SYN,RST -j DROP
+			-A ufw-before-input -p TCP --tcp-flags SYN,FIN SYN,FIN -j DROP
+			-A ufw-before-input -p TCP --tcp-flags SYN,ACK NONE -j DROP
+			-A ufw-before-input -p TCP --tcp-flags RST,FIN RST,FIN -j DROP
+			-A ufw-before-input -p TCP --tcp-flags SYN,URG SYN,URG -j DROP
+			-A ufw-before-input -p TCP --tcp-flags ALL SYN,PSH -j DROP
+			-A ufw-before-input -p TCP --tcp-flags ALL SYN,ACK,PSH -j DROP
 	service ufw restart
 	
 	ufw enable
@@ -193,7 +205,9 @@ Add Prerequisite Repositories
 	apt-get update
 
 Install Required Packages
-	apt-get install apache2 apt-show-versions monit rsyslog ntp cifs-utils mailutils samba fail2ban libsasl2-modules postfix opendkim opendkim-tools oracle-java7-installer p7zip-full handbrake-cli dnsmasq imagemagick ffmpeg git libpcre3-dev libssl-dev build-essential  libpcre3-dev unzip apparmor-utils rng-tools php5-fpm php5-cli php5-cgi php5-mysql php5-gd php-apc php5-curl php5-dev php-pear php5-apcu mariadb-server make dnstools php5-sqlite
+	apt-get install apache2 apt-show-versions monit rsyslog ntp cifs-utils mailutils samba fail2ban libsasl2-modules postfix opendkim opendkim-tools oracle-java7-installer p7zip-full handbrake-cli dnsmasq imagemagick ffmpeg git libssl-dev build-essential  libpcre3-dev unzip apparmor-utils rng-tools php5-fpm php5-cli php5-cgi php5-mysql php5-gd php-apc php5-curl php5-dev php-pear php5-apcu mariadb-server make php5-sqlite
+	
+	# dnstools missing from ubuntu 14.04 lts now
 	
 	# accept defaults for all installers - when postfix installer prompts you, i.e. OK, Internet Site
 	# Don't auto-configure database when the rsyslog utility app asks you.
@@ -283,7 +297,6 @@ Install Required Software From Source
 		application/x-font-ttf             ttf;
 		font/opentype                      otf;
 		application/font-woff2            woff2;
-		audio/webm weba;
 		
 	
 Install lucee
@@ -657,6 +670,8 @@ Visit http://xip.io/ to understand how this free service helps you create develo
 	Essentially it automates dns configuration, to let you create new domains instantly that point to any ip address you desire.
 	http://mydomain.com.127.0.0.1.xip.io/ would attempt to connection to 127.0.0.1 with the host name mydomain.com.127.0.0.1.xip.io. 
 	Jetendo has been designed to support this service by default.
+	
+	You can also use nip.io the same way.
 	
 By default, this is not needed.  If you want additional pools, add them like this.  one listen path for each fastcgi pool.   /etc/php5/fpm/pool.d/dev.com.conf  - but lets symbolic link it to /var/jetendo-server/system/php/fpm-pool-conf/
 			[dev.com]
