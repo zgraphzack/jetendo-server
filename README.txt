@@ -196,7 +196,18 @@ Add Prerequisite Repositories
 	apt-get install software-properties-common
 	apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
 	add-apt-repository 'deb http://ftp.utexas.edu/mariadb/repo/10.0/ubuntu trusty main'
+
 	
+	#best way to upgrade from mariadb 10.0 to 10.1 (10.1 fails to function - don't install 10.1)
+	service monit stop
+	service mysql stop
+	 apt-get -f remove --auto-remove mariadb-server
+	add-apt-repository --remove 'deb [arch=amd64,i386] http://mirrors.accretive-networks.net/mariadb/repo/10.1/ubuntu trusty main'
+	apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
+	add-apt-repository 'deb [arch=amd64,i386] http://mirrors.accretive-networks.net/mariadb/repo/10.1/ubuntu trusty main'
+	apt-get update
+	apt-get install mariadb-server
+
 	apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x4F4EA0AAE5267A6C
 	add-apt-repository ppa:ondrej/php5
 	add-apt-repository ppa:kirillshkrogalev/ffmpeg-next
@@ -255,8 +266,8 @@ Install Required Software From Source
 	Nginx
 		mkdir /var/jetendo-server/system/nginx-build
 		cd /var/jetendo-server/system/nginx-build
-		wget http://nginx.org/download/nginx-1.9.4.tar.gz
-		tar xvfz nginx-1.9.4.tar.gz
+		wget http://nginx.org/download/nginx-1.9.11.tar.gz
+		tar xvfz nginx-1.9.11.tar.gz
 		adduser --system --no-create-home --disabled-login --disabled-password --group nginx
 		
 		Put "sendfile off;" in nginx.conf on test server when using virtualbox shared folders
@@ -270,9 +281,8 @@ Install Required Software From Source
 			unzip master.zip -d /var/jetendo-server/system/nginx-build/
 			rm master.zip
 			
-		
-		cd /var/jetendo-server/system/nginx-build/nginx-1.9.4/
-		./configure --with-http_realip_module  --with-http_spdy_module --prefix=/var/jetendo-server/nginx --user=nginx --group=nginx --with-http_ssl_module --with-http_gzip_static_module  --with-http_flv_module --with-http_mp4_module --with-http_stub_status_module  --add-module=/var/jetendo-server/system/nginx-build/ngx_devel_kit-master --add-module=/var/jetendo-server/system/nginx-build/set-misc-nginx-module-master
+		cd /var/jetendo-server/system/nginx-build/nginx-1.9.11/
+		./configure --with-http_realip_module  --with-http_v2_module --prefix=/var/jetendo-server/nginx --user=nginx --group=nginx --with-http_ssl_module --with-http_gzip_static_module  --with-http_flv_module --with-http_mp4_module --with-http_stub_status_module  --add-module=/var/jetendo-server/system/nginx-build/ngx_devel_kit-master --add-module=/var/jetendo-server/system/nginx-build/set-misc-nginx-module-master
 		make
 		make install
 		cd /var/jetendo-server/nginx
@@ -805,6 +815,16 @@ Configure Jetendo CMS
 	
 	Once that is done, you will be prompted to login to the server manager and begin using Jetendo CMS.
 	
+Install KernelCare.com (paid service for no-reboot kernel updates)
+		wget https://downloads.kernelcare.com/kernelcare-latest.deb
+		dpkg -i kernelcare-latest.deb
+		# set license key (where KEY is the actual key you purchased)
+		/usr/bin/kcarectl --register KEY
+		# To check if patches applied: 
+		/usr/bin/kcarectl --info
+		# The software will automatically check for new patches every 4 hours. If you would like to run update manually: 
+		/usr/bin/kcarectl --update
+
 Preparing the virtual machine for distribution:
 	Run these commands inside the virtual machine - it will automatically poweroff when complete.
 		killall -9 php
