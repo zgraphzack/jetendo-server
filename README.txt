@@ -21,15 +21,15 @@ Virtualbox initial setup
 		Name: Nginx SSL, Host Ip: 127.0.0.2: Host Port: 443, Guest Ip: 10.0.2.15, Guest Port: 443
 		Name: Apache, Host Ip: 127.0.0.3: Host Port: 80, Guest Ip: 10.0.2.16, Guest Port: 80
 		Name: Apache SSL, Host Ip: 127.0.0.3: Host Port: 443, Guest Ip: 10.0.2.16, Guest Port: 443
-		Name: Railo, Host Ip: 127.0.0.2: Host Port: 8888, Guest Ip: 10.0.2.15, Guest Port: 8888
+		Name: Lucee, Host Ip: 127.0.0.2: Host Port: 8888, Guest Ip: 10.0.2.15, Guest Port: 8888
 	Setup Shared Folders - The following names must point to the directory with the same name on your host system.  By default, they are a subdirectory of this README.txt file, however, you may relocate the paths if you wish.
-		host-nginx
-		host-mysql
-		host-coldfusion
-		host-system
-		host-railo
-		host-php
-		host-apache
+		nginx
+		mysql
+		coldfusion
+		system
+		lucee
+		php
+		apache
 		jetendo
 	Download and mount Ubuntu 14.04 LTS ISO to cdrom on first boot
 	
@@ -47,8 +47,8 @@ Virtualbox initial setup
 			www.your-site.com.127.0.0.3.xip.io
 		Nginx web sites with:
 			www.your-site.com.127.0.0.2.xip.io
-		Railo administrator:
-			http://127.0.0.2:8888/railo-context/admin/server.cfm
+		Lucee administrator:
+			http://127.0.0.2:8888/lucee/admin/server.cfm
 		Jetendo Administrator:
 			https://jetendo.your-company.com.127.0.0.2.xip.io/z/server-manager/admin/server-home/index
 			
@@ -332,18 +332,15 @@ Install lucee
 	Install lucee from newest tomcat x64 binary release on www.lucee.org
 		mkdir /var/jetendo-server/system/lucee/
 		cd /var/jetendo-server/system/lucee/
-		download lucee linux x64 tomcat from http://www.getlucee.org/ and upload to /var/jetendo-server/system/lucee/
-		wget http://www.getlucee.org/down.cfm?item=/lucee/remote/download42/4.2.1.008/tomcat/linux/lucee-4.2.1.008-pl0-linux-x64-installer.run&thankyou=true
-		mv down tab to lucee-4.2.1.008-pl0-linux-x64-installer.run
-		chmod 770 /var/jetendo-server/system/lucee/lucee-4.2.1.008-pl0-linux-x64-installer.run
+		download lucee linux x64 tomcat from http://lucee.org/ and upload to /var/jetendo-server/system/lucee/
 		
-		#shutdown and disable railo if it is installed.
-		service railo_ctl stop
-		echo manual | sudo tee /etc/init/railo_ctl.override
+		chmod 770 the installer file.
 		
-		/var/jetendo-server/jetendo/sites/lucee-4.5.1.022-pl1-linux-x64-installer.run
+		#shutdown and disable Lucee if it is installed.
+		service lucee_ctl stop
+		echo manual | sudo tee /etc/init/lucee_ctl.override
 		
-		./lucee-4.5.1.022-pl1-linux-x64-installer.run
+		run the installer file
 		When it asks for the user to run lucee as, type in: www-data
 		Installation Directory /var/jetendo-server/lucee
 		Start lucee at boot time: Y
@@ -458,7 +455,7 @@ Install node.js 0.12.x using nodesource PPA
 	node -v
 	handlebars -v
 	
-Install Coldfusion 9.0.2 (Jetendo CMS uses Railo exclusively, Coldfusion installation is optional)
+Install Coldfusion 9.0.2 (Jetendo CMS uses Lucee exclusively, Coldfusion installation is optional)
 	apt-get install libstdc++5
 	download coldfusion 9 developer editing linux 64-bit from adobe: http://www.adobe.com/support/coldfusion/downloads_updates.html#cf9
 	/var/jetendo-server/system/coldfusion/install/ColdFusion_9_WWEJ_linux64.bin
@@ -715,10 +712,10 @@ Configure Jetendo CMS
 	Note: If you want to run a RELEASE version of Jetendo CMS, skip running this file.
 		php /var/jetendo-server/system/install-jetendo.php
 		
-	Add the following mappings to the Railo web admin for the /var/jetendo-server/jetendo/ context:
-		Railo web admin URL for VirtualBox (create a new password if it asks.)
+	Add the following mappings to the Lucee web admin for the /var/jetendo-server/jetendo/ context:
+		Lucee web admin URL for VirtualBox (create a new password if it asks.)
 		
-		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/web.cfm?action=resources.mappings
+		http://dev.com.127.0.0.2.xip.io:8888/lucee/admin/web.cfm?action=resources.mappings
 	
 		The resource path for "/zcorecachemapping" must be the sites-writable path for the adminDomain.
 		For example, if request.zos.adminDomain = "http://jetendo.your-company.com";
@@ -740,7 +737,7 @@ Configure Jetendo CMS
 		Resource Path: /var/jetendo-server/jetendo/database-upgrade
 	
 	Setup the Jetendo datasource - the database, datasource, jetendo_datasource, and request.zos.zcoreDatasource must all be the same name.
-		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/web.cfm?action=services.datasource
+		http://dev.com.127.0.0.2.xip.io:8888/lucee/admin/web.cfm?action=services.datasource
 		Add mysql datasource named "jetendo" or whatever you've configured it to be in the jetendo config files.
 			host: 127.0.0.1
 			Required options: 
@@ -757,30 +754,31 @@ Configure Jetendo CMS
 
 	
 	Enable complete null support and set dot notation to Keep Original Case (fixes javascript case problems):
-		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/server.cfm?action=server.compiler
+		http://dev.com.127.0.0.2.xip.io:8888/lucee/admin/server.cfm?action=server.compiler
 		
 	Enable mail server:
-		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/server.cfm?action=services.mail
+		http://dev.com.127.0.0.2.xip.io:8888/lucee/admin/server.cfm?action=services.mail
 		
 		Under Mail Servers -> Server (SMTP), type "localhost" and click update"
 		
-	Configure Railo security sandbox
-		http://jetendo.your-company.com.127.0.0.2.xip.io:8888/railo-context/admin/server.cfm?action=security.access&sec_tab=SPECIAL
+	Configure Lucee security sandbox
+		http://jetendo.your-company.com.127.0.0.2.xip.io:8888/lucee/admin/server.cfm?action=security.access&sec_tab=SPECIAL
 		Under Create new context, select "b180779e6dc8f3bb6a8ea14a604d83d4 (/var/jetendo-server/jetendo/sites)" and click Create
 		Then click edit next to the specific web context
-		On a production server, set General Access for read and write to "closed" when you don't need to access the Railo admin.   You can re-enable it only when you need to make changes.
+		On a production server, set General Access for read and write to "closed" when you don't need to access the Lucee admin.   You can re-enable it only when you need to make changes.
 		Under File Access, select "Local" and enter the following directories. 
-			Note: In Railo 4.2, you have to enter one directory at a time by submitting the form with one entered, and then click edit again to enter the next one.
+			Note: In Lucee 4.2, you have to enter one directory at a time by submitting the form with one entered, and then click edit again to enter the next one.
 			/var/jetendo-server/jetendo/core
 			/var/jetendo-server/jetendo/sites
 			/var/jetendo-server/jetendo/share
 			/var/jetendo-server/jetendo/execute
 			/var/jetendo-server/jetendo/public
-			/var/jetendo-server/railovhosts/1599b2419bcff43008448d60f69f646e/temp
+			/var/jetendo-server/luceevhosts/1599b2419bcff43008448d60f69f646e/temp
 			/var/jetendo-server/jetendo/sites-writable
 			/var/jetendo-server/jetendo/themes
 			/var/jetendo-server/jetendo/database-upgrade
 			/zbackup/backup
+			/zbackup/jetendo
 		Uncheck "Direct Java Access"
 		Uncheck all the boxes under "Tags & Functions" - Jetendo CMS intentionally allows not using these features to be more secure.
 		
@@ -803,7 +801,7 @@ Configure Jetendo CMS
 		
 	At the end of a successful run of install.php, you'll be told to visit a URL in the browser to complete installation.  The first time you run that URL, it will restore the database tables, and verify the integrity of the installation.  Please be patient as this process can take anywhere from 10 seconds to a couple minutes the first time depending on your environment.
 	
-	Troubleshooting Tip: If you have a problem during this step, you may need to drop the entire database, and restart the Railo Server after correcting the configuration.   This is because the first time database installation may fail if you make a mistake in your configuration or if there is a bug in the install script.  Please make us aware of any problems you encountered during installation so we can improve the software.
+	Troubleshooting Tip: If you have a problem during this step, you may need to drop the entire database, and restart the Lucee Server after correcting the configuration.   This is because the first time database installation may fail if you make a mistake in your configuration or if there is a bug in the install script.  Please make us aware of any problems you encountered during installation so we can improve the software.
 	
 	After it finishes loading, a page should appear saying "You're Almost Ready".
 	

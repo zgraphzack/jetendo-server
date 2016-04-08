@@ -24,7 +24,7 @@ Download Jetendo Server
 		mysql
 		coldfusion
 		system
-		railo
+		lucee
 		php
 		apache
 		jetendo
@@ -51,7 +51,7 @@ Virtualbox initial setup
 			mysql
 			coldfusion
 			system
-			railo
+			lucee
 			php
 			apache
 			jetendo
@@ -81,7 +81,7 @@ Verify the VirtualBox shared folders are working:
 		Nginx SSL, Host Ip: 127.0.0.2: Host Port: 443, Guest Ip: 127.0.0.2, Guest Port: 443
 		Apache, Host Ip: 127.0.0.3: Host Port: 80, Guest Ip: 127.0.0.3, Guest Port: 80
 		Apache SSL, Host Ip: 127.0.0.3: Host Port: 443, Guest Ip: 127.0.0.3, Guest Port: 443
-		Railo, Host Ip: 127.0.0.2: Host Port: 8888, Guest Ip: 127.0.0.1, Guest Port: 8888
+		Lucee, Host Ip: 127.0.0.2: Host Port: 8888, Guest Ip: 127.0.0.1, Guest Port: 8888
 		Monit, Host Ip: 127.0.0.2: Host Port: 2812, Guest Ip: 127.0.0.1, Guest Port: 2812
 		Coldfusion, Host Ip: 127.0.0.2: Host Port: 8500, Guest Ip: 127.0.0.1, Guest Port: 8500
 		MySQL/MariaDB, Host Ip: 127.0.0.2: Host Port: 3306, Guest Ip: 127.0.0.1, Guest Port: 3306
@@ -211,13 +211,13 @@ Configure Jetendo CMS
 	Note: If you want to run a RELEASE version of Jetendo CMS, skip running this file.
 		php /var/jetendo-server/system/install-jetendo.php
 
-		some paths didn't exist on first boot, so we need to restart railo now for it to work:
-			service railo_ctl restart
+		some paths didn't exist on first boot, so we need to restart Lucee now for it to work:
+			service lucee_ctl restart
 		
-	Add the following mappings to the Railo web admin for the /var/jetendo-server/jetendo/ context:
-		Railo web admin URL for VirtualBox (create a new password if it asks.)
+	Add the following mappings to the Lucee web admin for the /var/jetendo-server/jetendo/ context:
+		Lucee web admin URL for VirtualBox (create a new password if it asks.)
 		
-		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/web.cfm?action=resources.mappings
+		http://dev.com.127.0.0.2.xip.io:8888/lucee/admin/web.cfm?action=resources.mappings
 	
 		The resource path for "/zcorecachemapping" must be the sites-writable path for the adminDomain.
 		For example, if request.zos.adminDomain = "http://jetendo.your-company.com";
@@ -239,7 +239,7 @@ Configure Jetendo CMS
 		Resource Path: /var/jetendo-server/jetendo/database-upgrade
 	
 	Setup the Jetendo datasource - the database, datasource, jetendo_datasource, and request.zos.zcoreDatasource must all be the same name.
-		http://dev.com.127.0.0.2.xip.io:8888/railo-context/admin/web.cfm?action=services.datasource
+		http://dev.com.127.0.0.2.xip.io:8888/lucee/admin/web.cfm?action=services.datasource
 		Add mysql datasource named "jetendo" or whatever you've configured it to be in the jetendo config files.
 			host: 127.0.0.1
 			Required options: 
@@ -274,7 +274,7 @@ Configure Jetendo CMS
 		
 	At the end of a successful run of install.php, you'll be told to visit a URL in the browser to complete installation.  The first time you run that URL, it will restore the database tables, and verify the integrity of the installation.  Please be patient as this process can take anywhere from 10 seconds to a couple minutes the first time depending on your environment.
 	
-	Troubleshooting Tip: If you have a problem during this step, you may need to drop the entire database, and restart the Railo Server after correcting the configuration.   This is because the first time database installation may fail if you make a mistake in your configuration or if there is a bug in the install script.  Please make us aware of any problems you encountered during installation so we can improve the software.
+	Troubleshooting Tip: If you have a problem during this step, you may need to drop the entire database, and restart the Lucee Server after correcting the configuration.   This is because the first time database installation may fail if you make a mistake in your configuration or if there is a bug in the install script.  Please make us aware of any problems you encountered during installation so we can improve the software.
 	
 	After it finishes loading, a page should appear saying "You're Almost Ready".
 	
@@ -293,8 +293,8 @@ How to access web sites and administrative services:
 		www.your-site.com.127.0.0.3.xip.io
 	Nginx web sites with:
 		www.your-site.com.127.0.0.2.xip.io
-	Railo administrator:
-		http://127.0.0.2:8888/railo-context/admin/server.cfm
+	Lucee administrator:
+		http://127.0.0.2:8888/lucee/admin/server.cfm
 	Jetendo Administrator:
 		https://jetendo.your-company.com.127.0.0.2.xip.io/z/server-manager/admin/server-home/index
 		
