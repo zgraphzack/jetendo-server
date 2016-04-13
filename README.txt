@@ -773,12 +773,12 @@ Configure Jetendo CMS
 			/var/jetendo-server/jetendo/share
 			/var/jetendo-server/jetendo/execute
 			/var/jetendo-server/jetendo/public
-			/var/jetendo-server/luceevhosts/1599b2419bcff43008448d60f69f646e/temp
+			/var/jetendo-server/luceevhosts/1599b2419bcff43008448d60f69f646e/
 			/var/jetendo-server/jetendo/sites-writable
 			/var/jetendo-server/jetendo/themes
 			/var/jetendo-server/jetendo/database-upgrade
-			/var/jetendo-server/luceevhosts/1599b2419bcff43008448d60f69f646e/context/admin
 			/var/jetendo-server/backup/
+			/var/jetendo-server/lucee/tomcat/lucee-server/context/
 			/zbackup/backup
 			/zbackup/jetendo
 		Uncheck "Direct Java Access"
