@@ -54,7 +54,7 @@
   /var/jetendo-server/jetendo/themes/ r,
   /var/jetendo-server/jetendo/themes/** r,
   /var/jetendo-server/lucee/ r,
-  /var/jetendo-server/lucee/** mr,
+  /var/jetendo-server/lucee/** mrwk,
   /var/jetendo-server/lucee/tomcat/.attach_pid* mrw,
   /var/jetendo-server/lucee/tomcat/lucee-server/** mrwk,
   /var/jetendo-server/lucee/jdk/jre/bin/java mrix,
