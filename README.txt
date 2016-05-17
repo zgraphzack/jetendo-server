@@ -216,7 +216,7 @@ Add Prerequisite Repositories
 	apt-get update
 
 Install Required Packages
-	apt-get install apache2 apt-show-versions monit rsyslog ntp cifs-utils mailutils samba fail2ban libsasl2-modules postfix opendkim opendkim-tools oracle-java7-installer p7zip-full handbrake-cli dnsmasq imagemagick ffmpeg git libssl-dev build-essential  libpcre3-dev unzip apparmor-utils rng-tools php5-fpm php5-cli php5-cgi php5-mysql php5-gd php-apc php5-curl php5-dev php-pear php5-apcu mariadb-server make php5-sqlite
+	apt-get install apache2 apt-show-versions monit rsyslog ntp cifs-utils mailutils samba fail2ban libsasl2-modules postfix opendkim opendkim-tools oracle-java7-installer p7zip-full handbrake-cli dnsmasq imagemagick ffmpeg git libssl-dev build-essential  libpcre3-dev unzip apparmor-utils rng-tools php-pear mariadb-server make
 	
 	apt-get install php7.0
 	apt-get install php7.0-mysql php7.0-cli php7.0-fpm php7.0-gd php7.0-curl php7.0-dev php7.0-sqlite3
@@ -487,13 +487,8 @@ Configure the variables in jetendo.ini manually
 	/var/jetendo-server/system/php/jetendo.ini
 	
 Make sure the jetendo.ini symbolic link is created:
-	ln -sfn /var/jetendo-server/system/php/jetendo.ini /etc/php5/mods-available/jetendo.ini
-	
 	ln -sfn /var/jetendo-server/system/php/jetendo.ini /etc/php/7.0/mods-available/jetendo.ini
-Enable the php configuration module:
-	php5enmod jetendo
-	service php5-fpm restart
-	
+Enable the php configuration module:	
 	phpenmod jetendo
 	service php7.0-fpm restart
 	
@@ -503,7 +498,6 @@ Enable the php configuration module:
 	ln -sfn /var/jetendo-server/system/jetendo-sysctl-development.conf /etc/sysctl.d/jetendo-sysctl-development.conf
 	ln -sfn /var/jetendo-server/system/monit/jetendo.conf /etc/monit/conf.d/jetendo.conf
 	ln -sfn /var/jetendo-server/system/apache-conf/development-sites-enabled /etc/apache2/sites-enabled
-	ln -sfn /var/jetendo-server/system/php/development-pool /etc/php5/fpm/pool.d
 	ln -sfn /var/jetendo-server/system/php/development-pool /etc/php/7.0/fpm/pool.d
 	
 	
@@ -514,7 +508,6 @@ Enable the php configuration module:
 	ln -sfn /var/jetendo-server/system/jetendo-sysctl-production.conf /etc/sysctl.d/jetendo-sysctl-production.conf
 	ln -sfn /var/jetendo-server/system/monit/jetendo.conf /etc/monit/conf.d/jetendo.conf
 	ln -sfn /var/jetendo-server/system/apache-conf/production-sites-enabled /etc/apache2/sites-enabled
-	ln -sfn /var/jetendo-server/system/php/production-pool /etc/php5/fpm/pool.d
 	ln -sfn /var/jetendo-server/system/php/production-pool /etc/php/7.0/fpm/pool.d
 	
 ln -sfn /var/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx
@@ -690,7 +683,7 @@ Visit http://xip.io/ to understand how this free service helps you create develo
 	
 	You can also use nip.io the same way.
 	
-By default, this is not needed.  If you want additional pools, add them like this.  one listen path for each fastcgi pool.   /etc/php5/fpm/pool.d/dev.com.conf  - but lets symbolic link it to /var/jetendo-server/system/php/fpm-pool-conf/
+By default, this is not needed.  If you want additional pools, add them like this.  one listen path for each fastcgi pool.   /etc/php/7.0/fpm/pool.d/dev.com.conf  - but lets symbolic link it to /var/jetendo-server/system/php/fpm-pool-conf/
 			[dev.com]
 			listen = /var/jetendo-server/php/run/fpm.dev.com.sock
 			listen.owner = www-user
