@@ -1,4 +1,6 @@
 <?php
+// this file has not been updated for lucee
+
 // This script prepares the virtual machine for being distributed.   It attempts to remove all private data and zero the available space so we can run the VDI compact command to reduce the size of the machine file.
 // "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe" modifyhd jetendo-server-os.vdi --compact
 

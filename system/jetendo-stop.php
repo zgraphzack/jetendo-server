@@ -94,10 +94,10 @@ if(array_key_exists("coldfusion", $arrServiceMap)){
 	echo $r."\n";
 }
 
-// stop php5-fpm
+// stop php7.0-fpm
 if(array_key_exists("php", $arrServiceMap)){
 	echo "Stop php\n";
-	$r=`/usr/sbin/service php5-fpm stop`;
+	$r=`/usr/sbin/service php7.0-fpm stop`;
 	echo $r."\n";
 }
 

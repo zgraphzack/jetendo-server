@@ -209,7 +209,7 @@ Add Prerequisite Repositories
 	apt-get install mariadb-server
 
 	apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x4F4EA0AAE5267A6C
-	add-apt-repository ppa:ondrej/php5
+	LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
 	add-apt-repository ppa:kirillshkrogalev/ffmpeg-next
 	add-apt-repository ppa:webupd8team/java
 	add-apt-repository ppa:stebbins/handbrake-releases
@@ -217,6 +217,9 @@ Add Prerequisite Repositories
 
 Install Required Packages
 	apt-get install apache2 apt-show-versions monit rsyslog ntp cifs-utils mailutils samba fail2ban libsasl2-modules postfix opendkim opendkim-tools oracle-java7-installer p7zip-full handbrake-cli dnsmasq imagemagick ffmpeg git libssl-dev build-essential  libpcre3-dev unzip apparmor-utils rng-tools php5-fpm php5-cli php5-cgi php5-mysql php5-gd php-apc php5-curl php5-dev php-pear php5-apcu mariadb-server make php5-sqlite
+	
+	apt-get install php7.0
+	apt-get install php7.0-mysql php7.0-cli php7.0-fpm php7.0-gd php7.0-curl php7.0-dev php7.0-sqlite3
 	
 	# dnstools missing from ubuntu 14.04 lts now
 	
@@ -485,9 +488,14 @@ Configure the variables in jetendo.ini manually
 	
 Make sure the jetendo.ini symbolic link is created:
 	ln -sfn /var/jetendo-server/system/php/jetendo.ini /etc/php5/mods-available/jetendo.ini
+	
+	ln -sfn /var/jetendo-server/system/php/jetendo.ini /etc/php/7.0/mods-available/jetendo.ini
 Enable the php configuration module:
 	php5enmod jetendo
 	service php5-fpm restart
+	
+	phpenmod jetendo
+	service php7.0-fpm restart
 	
 # development server symbolic link configuration
 	ln -sfn /var/jetendo-server/system/jetendo-mysql-development.cnf /etc/mysql/conf.d/jetendo-mysql-development.cnf 
@@ -496,6 +504,7 @@ Enable the php configuration module:
 	ln -sfn /var/jetendo-server/system/monit/jetendo.conf /etc/monit/conf.d/jetendo.conf
 	ln -sfn /var/jetendo-server/system/apache-conf/development-sites-enabled /etc/apache2/sites-enabled
 	ln -sfn /var/jetendo-server/system/php/development-pool /etc/php5/fpm/pool.d
+	ln -sfn /var/jetendo-server/system/php/development-pool /etc/php/7.0/fpm/pool.d
 	
 	
 	
@@ -506,6 +515,7 @@ Enable the php configuration module:
 	ln -sfn /var/jetendo-server/system/monit/jetendo.conf /etc/monit/conf.d/jetendo.conf
 	ln -sfn /var/jetendo-server/system/apache-conf/production-sites-enabled /etc/apache2/sites-enabled
 	ln -sfn /var/jetendo-server/system/php/production-pool /etc/php5/fpm/pool.d
+	ln -sfn /var/jetendo-server/system/php/production-pool /etc/php/7.0/fpm/pool.d
 	
 ln -sfn /var/jetendo-server/system/jetendo-nginx-init /etc/init.d/nginx
 /usr/sbin/update-rc.d -f nginx defaults
