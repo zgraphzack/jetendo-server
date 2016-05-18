@@ -179,9 +179,9 @@ if(array_key_exists("php", $arrServiceMap)){
 		chgrp('/var/jetendo-server/php/temp', 'www-data');
 	}
 	if(is_dir($configPath."php/pool")){
-		$cmd="/bin/ln -sfn ".$configPath."php/pool /etc/php5/fpm/pool.d";
+		$cmd="/bin/ln -sfn ".$configPath."php/pool /etc/php/7.0/fpm/pool.d";
 	}else{
-		$cmd="/bin/ln -sfn /var/jetendo-server/system/php/".$environment."-pool /etc/php5/fpm/pool.d";
+		$cmd="/bin/ln -sfn /var/jetendo-server/system/php/".$environment."-pool /etc/php/7.0/fpm/pool.d";
 	}
 	$r=`$cmd`;
 	echo $r."\n";
@@ -266,10 +266,10 @@ if(array_key_exists("postfix", $arrServiceMap)){
 	$r=`/usr/sbin/service postfix start`;
 	echo $r."\n";
 }
-// start php5-fpm
+// start php7.0-fpm
 if(array_key_exists("php", $arrServiceMap)){
-	echo "Start php5-fpm\n";
-	$r=`/usr/sbin/service php5-fpm start`;
+	echo "Start php7.0-fpm\n";
+	$r=`/usr/sbin/service php7.0-fpm start`;
 	echo $r."\n";
 }
 // start mysql
