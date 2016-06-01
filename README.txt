@@ -219,7 +219,10 @@ Install Required Packages
 	apt-get install apache2 apt-show-versions monit rsyslog ntp cifs-utils mailutils samba fail2ban libsasl2-modules postfix opendkim opendkim-tools oracle-java7-installer p7zip-full handbrake-cli dnsmasq imagemagick ffmpeg git libssl-dev build-essential  libpcre3-dev unzip apparmor-utils rng-tools php-pear mariadb-server make
 	
 	apt-get install php7.0
-	apt-get install php7.0-mysql php7.0-cli php7.0-fpm php7.0-gd php7.0-curl php7.0-dev php7.0-sqlite3
+	apt-get install php7.0-mysql php7.0-cli php7.0-fpm php7.0-gd php7.0-curl php7.0-dev php7.0-sqlite3 
+	
+	# if you want to use php with apache2, also run this:
+	apt-get install libapache2-mod-php7.0
 	
 	# dnstools missing from ubuntu 14.04 lts now
 	
@@ -771,6 +774,7 @@ Configure Jetendo CMS
 		On a production server, set General Access for read and write to "closed" when you don't need to access the Lucee admin.   You can re-enable it only when you need to make changes.
 		Under File Access, select "Local" and enter the following directories. 
 			Note: In Lucee 4.2, you have to enter one directory at a time by submitting the form with one entered, and then click edit again to enter the next one.
+			/var/jetendo-server/lucee/tomcat/lucee-server/context/userdata
 			/var/jetendo-server/jetendo/core
 			/var/jetendo-server/jetendo/sites
 			/var/jetendo-server/jetendo/share
