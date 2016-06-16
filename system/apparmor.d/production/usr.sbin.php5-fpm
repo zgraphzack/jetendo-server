@@ -11,8 +11,8 @@
   capability chown,
   capability dac_override,
   capability dac_read_search,
-  
-  deny /opt/jetendo/sites/studentremedy_com/public_html/livezilla/** w,
+  /bin/dash rix,
+  /var/jetendo-server/jetendo/sites-writable/*/client-upload/** rw,
  
   /etc/mailname r,
   /etc/postfix/dynamicmaps.cf r,
